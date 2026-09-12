@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>트릭컬 리바이브 세계수 떡밥 분석서</title>
+<style>
+:root{
+  --bg:#090807;
+  --paper:#151210;
+  --paper2:#1b1713;
+  --ink:#eee7d8;
+  --muted:#aaa093;
+  --gold:#c9a66b;
+  --gold2:#8e6e3f;
+  --red:#b86f6f;
+  --blue:#7ba3a8;
+  --green:#8ba77a;
+  --line:#3a3028;
+  --shadow:0 24px 70px rgba(0,0,0,.42);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+  radial-gradient(circle at 20% 0%,rgba(128,94,47,.13),transparent 30rem),
+  radial-gradient(circle at 80% 30%,rgba(68,92,95,.08),transparent 32rem),
+  var(--bg);
+  color:var(--ink);
+  font-family:"Noto Serif KR","Batang","NanumMyeongjo","AppleMyungjo",serif;
+  line-height:1.85;
+}
+a{color:var(--gold)}
+.layout{max-width:1400px;margin:auto;display:grid;grid-template-columns:250px minmax(0,930px);gap:34px;padding:26px}
+nav{
+  position:sticky;top:20px;align-self:start;height:calc(100vh - 40px);
+  overflow:auto;padding:24px 18px;border:1px solid var(--line);
+  background:rgba(18,15,13,.9);backdrop-filter:blur(10px);box-shadow:var(--shadow)
+}
+nav h2{font-size:.9rem;letter-spacing:.18em;color:var(--gold);margin:0 0 18px}
+nav a{display:block;text-decoration:none;color:#cfc5b5;padding:8px 2px;border-bottom:1px dotted #302820;font-size:.91rem}
+nav a:hover{color:#fff}
+main{
+  background:linear-gradient(90deg,rgba(255,255,255,.012),transparent 3%,transparent 97%,rgba(255,255,255,.012)),var(--paper);
+  border:1px solid var(--line);box-shadow:var(--shadow);min-height:100vh
+}
+.cover{
+  min-height:760px;padding:62px 72px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  border-bottom:1px solid var(--line)
+}
+.cover:before{
+  content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 50% 22%,rgba(200,166,107,.12),transparent 18rem),
+  linear-gradient(to bottom,rgba(0,0,0,.05),rgba(0,0,0,.64));
+}
+.cover-art{position:absolute;inset:32px 40px 170px;opacity:.92}
+.cover-content{position:relative;z-index:2;max-width:720px}
+.kicker{font-size:.83rem;letter-spacing:.27em;color:var(--gold);text-transform:uppercase}
+h1{font-size:3.6rem;line-height:1.12;margin:.18em 0 .28em;font-weight:600;letter-spacing:-.03em}
+.subtitle{font-size:1.2rem;color:#c8beb0;max-width:680px}
+.edition{margin-top:25px;color:#8f857a;font-size:.9rem}
+.chapter{padding:66px 72px;border-bottom:1px solid var(--line)}
+.chapter:last-child{border-bottom:0}
+.chapter-num{color:var(--gold);font-size:.82rem;letter-spacing:.24em;text-transform:uppercase}
+h2{font-size:2.15rem;line-height:1.25;margin:.25em 0 .8em;letter-spacing:-.02em}
+h3{font-size:1.28rem;margin:1.8em 0 .55em;color:#e5d6bc}
+p{margin:.7em 0}
+.lead{font-size:1.12rem;color:#d9cfbf}
+.note{
+  padding:18px 20px;margin:22px 0;border-left:3px solid var(--gold);
+  background:#1a1612;color:#d5ccbd
+}
+.legend{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;
+  font-family:"Malgun Gothic",sans-serif;font-size:.76rem;border:1px solid
+}
+.confirmed{color:#d9c18d;border-color:#705932;background:#221b11}
+.strong{color:#b6d0d2;border-color:#42656a;background:#101b1c}
+.hypo{color:#d7aaa7;border-color:#6d4643;background:#201312}
+.open{color:#b8b1a8;border-color:#55504a;background:#191715}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
+.card{
+  border:1px solid var(--line);background:linear-gradient(145deg,#1b1714,#12100e);
+  padding:20px 22px;min-height:150px
+}
+.card h3{margin:.1em 0 .5em}
+.fact-list{counter-reset:facts;list-style:none;margin:20px 0;padding:0}
+.fact-list li{
+  counter-increment:facts;position:relative;padding:18px 20px 18px 64px;margin:0 0 10px;
+  background:#181411;border:1px solid #332b24
+}
+.fact-list li:before{
+  content:counter(facts,decimal-leading-zero);position:absolute;left:17px;top:18px;
+  color:var(--gold);font-size:.87rem;letter-spacing:.08em
+}
+.fact-title{font-weight:700;color:#f2e9db}
+.fact-desc{color:#bdb3a6;font-size:.95rem;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin:22px 0;font-family:"Malgun Gothic",sans-serif;font-size:.9rem}
+th,td{padding:12px 11px;border-bottom:1px solid #382f27;vertical-align:top}
+th{color:var(--gold);font-weight:600;text-align:left;background:#1b1612}
+td{color:#d0c7b9}
+.diagram{
+  margin:24px 0;padding:26px;border:1px solid #3c3229;background:#0f0e0d;
+  overflow-x:auto
+}
+.tree-flow{min-width:720px;text-align:center;font-family:"Malgun Gothic",sans-serif}
+.node{
+  display:inline-block;padding:10px 16px;border:1px solid #66543a;background:#1b1712;
+  color:#eee3d2;border-radius:6px;min-width:160px
+}
+.node.h{border-color:#57767a;background:#11191a}
+.node.q{border-style:dashed;border-color:#8f5c58;background:#1b1212}
+.arrow{color:#8a7962;font-size:1.5rem;line-height:1.1;margin:6px}
+.branch{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
+.branch.seven{grid-template-columns:repeat(7,1fr)}
+.branch .node{min-width:0;padding:9px 6px;font-size:.83rem}
+.dashed{border-top:1px dashed #755a51;margin:10px auto;width:78%}
+.timeline{position:relative;margin:24px 0 0;padding-left:30px}
+.timeline:before{content:"";position:absolute;left:8px;top:4px;bottom:4px;width:1px;background:#594a3c}
+.event{position:relative;margin:0 0 22px;padding:0 0 0 12px}
+.event:before{content:"";position:absolute;left:-27px;top:.55em;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px #19140f}
+.event.future:before{background:var(--red)}
+.event h4{margin:0 0 4px;font-size:1rem;color:#eadfcf}
+.event p{margin:0;color:#b7ada0}
+.confidence{margin:20px 0}
+.bar-row{display:grid;grid-template-columns:245px 1fr 88px;align-items:center;gap:12px;margin:9px 0;font-family:"Malgun Gothic",sans-serif;font-size:.88rem}
+.bar{height:8px;background:#2b2520;border-radius:99px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#77623f,#cfab6d)}
+.fill.mid{background:linear-gradient(90deg,#514b45,#8aa1a4)}
+.fill.low{background:linear-gradient(90deg,#533b39,#a46762)}
+.quote{
+  font-size:1.15rem;font-style:italic;color:#ddcfb8;padding:24px 30px;margin:24px 0;
+  border-top:1px solid #4a3b2d;border-bottom:1px solid #4a3b2d;text-align:center
+}
+details{border:1px solid #352c25;background:#171310;margin:12px 0}
+summary{cursor:pointer;padding:14px 18px;color:#e8dcc9;font-weight:600}
+details .inside{padding:0 18px 18px;color:#bcb1a3}
+.mini{font-size:.84rem;color:#90867b}
+.warning{
+  border:1px solid #664440;background:#211413;padding:15px 17px;margin:20px 0;color:#d4b4b1
+}
+.footer{padding:42px 72px;color:#8e857a;font-size:.83rem;background:#100e0c}
+kbd{font-family:monospace;background:#28211b;border:1px solid #493b30;border-radius:4px;padding:1px 5px}
+@media(max-width:900px){
+  .layout{display:block;padding:0}
+  nav{position:relative;top:auto;height:auto;margin:0;border-left:0;border-right:0}
+  main{border-left:0;border-right:0}
+  .cover,.chapter,.footer{padding-left:26px;padding-right:26px}
+  h1{font-size:2.65rem}
+  .grid{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:1fr}
+  .branch.seven{grid-template-columns:repeat(4,1fr)}
+}
+@media print{
+  nav{display:none}.layout{display:block;padding:0}main{box-shadow:none;border:0}.chapter{break-inside:avoid}
+  body{background:#111}
+}
+
+.motif-map{margin:28px 0 34px;padding:18px;border:1px solid #3c3229;background:#0e0d0c;overflow-x:auto}
+.motif-map svg{width:100%;min-width:760px;height:auto;display:block}
+.motif-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}
+.motif-card{border:1px solid #382f27;background:linear-gradient(145deg,#1b1714,#12100e);padding:21px 22px;position:relative}
+.motif-card.wide{grid-column:1/-1}
+.motif-card h3{margin:.4em 0 .6em}
+.motif-card p{color:#c2b8aa}
+.motif-link{padding-top:10px;border-top:1px dotted #44382e}
+.motif-tag{display:inline-block;padding:3px 8px;border-radius:99px;font-family:"Malgun Gothic",sans-serif;font-size:.72rem;letter-spacing:.02em;border:1px solid #5f5042;color:#cabaa4;background:#1c1814}
+.motif-tag.high{border-color:#5e745b;color:#b9d2ae;background:#121a11}
+.motif-tag.medium{border-color:#596c78;color:#b7ccd5;background:#11191d}
+.motif-tag.direct{border-color:#7a623c;color:#dbc086;background:#211a10}
+@media(max-width:900px){.motif-grid{grid-template-columns:1fr}.motif-card.wide{grid-column:auto}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+<h2>CONTENTS</h2>
+<a href="#guide">읽는 법</a>
+<a href="#facts">01. 현재 확정된 떡밥</a>
+<a href="#map">02. 세계관 구조도</a>
+<a href="#relations">03. 핵심 존재 관계</a>
+<a href="#sprouts">04. 일곱 새싹과 일곱 세계수</a>
+<a href="#models">05. 영원살이와 최초의 인간</a>
+<a href="#nifel">06. 니펠과 죽음의 의미</a>
+<a href="#motifs">07. 연관 설화·상징 모티브</a>
+<a href="#future">08. 차후 스토리 예상</a>
+<a href="#flow">09. 전체 스토리 흐름</a>
+<a href="#watch">10. 앞으로 볼 떡밥</a>
+<a href="#sources">부록. 자료와 주의점</a>
+</nav>
+<main>
+<section class="cover">
+<svg aria-label="일곱 갈래 세계수 개념도" class="cover-art" viewbox="0 0 900 560">
+<defs>
+<radialgradient id="g1"><stop offset="0" stop-color="#d8bd7c" stop-opacity=".38"></stop><stop offset="1" stop-color="#d8bd7c" stop-opacity="0"></stop></radialgradient>
+<lineargradient id="trunk" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#ad8c55"></stop><stop offset="1" stop-color="#46372a"></stop></lineargradient>
+<filter id="glow"><fegaussianblur stddeviation="6"></fegaussianblur></filter>
+</defs>
+<ellipse cx="450" cy="130" fill="url(#g1)" rx="220" ry="145"></ellipse>
+<g fill="none" filter="url(#glow)" opacity=".2" stroke="#d5b879" stroke-width="2">
+<circle cx="450" cy="120" r="110"></circle><circle cx="450" cy="120" r="160"></circle>
+</g>
+<path d="M445 490 C430 385 430 320 448 242 C455 210 455 180 450 145" fill="none" stroke="url(#trunk)" stroke-linecap="round" stroke-width="26"></path>
+<g fill="none" stroke="#9c7d50" stroke-linecap="round" stroke-width="11">
+<path d="M448 280 C385 235 345 196 303 138"></path>
+<path d="M450 260 C405 188 397 140 385 80"></path>
+<path d="M451 244 C432 172 438 113 446 55"></path>
+<path d="M452 244 C473 169 474 112 468 55"></path>
+<path d="M454 258 C500 190 512 142 529 82"></path>
+<path d="M455 280 C520 239 557 198 594 139"></path>
+<path d="M453 305 C550 292 622 260 690 218"></path>
+</g>
+<g fill="#cab07a">
+<circle cx="303" cy="138" r="9"></circle><circle cx="385" cy="80" r="9"></circle><circle cx="446" cy="55" r="9"></circle>
+<circle cx="468" cy="55" r="9"></circle><circle cx="529" cy="82" r="9"></circle><circle cx="594" cy="139" r="9"></circle><circle cx="690" cy="218" r="9"></circle>
+</g>
+<g fill="#687a78" opacity=".5">
+<ellipse cx="450" cy="505" rx="330" ry="32"></ellipse><ellipse cx="450" cy="525" opacity=".32" rx="390" ry="20"></ellipse>
+</g>
+</svg>
+<div class="cover-content">
+<div class="kicker">Trickcal Re:VIVE Lore Dossier</div>
+<h1>세계수 · 니펠 · 최초의 인간<br/>떡밥 분석서</h1>
+<div class="subtitle">확정된 사실과 추론을 분리하고, 일곱 세계수·위대한 나무·엘드르·우이·니펠의 관계와 그 배후의 신화·설화 모티브를 하나의 흐름으로 읽기 위한 정리본.</div>
+<div class="edition">정리 기준: 2026-09-12 · 메인스토리 시즌 3 챕터 7-A 공개 이후</div>
+</div>
+</section>
+<section class="chapter" id="guide">
+<div class="chapter-num">READING GUIDE</div>
+<h2>먼저, 이 문서의 읽는 법</h2>
+<p class="lead">트릭컬의 최신 떡밥은 <b>확정 정보</b>와 <b>강한 추론</b>이 서로 아주 가까이 붙어 있다. 그래서 이 문서에서는 모든 내용을 같은 무게로 쓰지 않는다.</p>
+<div class="legend">
+<span class="badge confirmed">● 확정</span>
+<span class="badge strong">● 강한 추론</span>
+<span class="badge hypo">● 가설</span>
+<span class="badge open">● 미해결</span>
+</div>
+<div class="note"><b>핵심 원칙.</b> 작중에서 확인된 대사·사건 자체와, 그것을 연결해 만든 해석을 분리한다. 특히 <b>‘큰 어르신 = 위대한 나무’</b>, <b>‘엘드르 = 일곱째 세계수’</b>, <b>‘우이 = 일곱째 세계수의 분신/기억/대응체’</b>는 매우 중요한 가설이지만 아직 동일성 자체가 완전히 닫힌 사실로 취급되지는 않는다.</div>
+</section>
+<section class="chapter" id="facts">
+<div class="chapter-num">CHAPTER 01</div>
+<h2>현재 확정된 떡밥</h2>
+<p>아래는 지금까지의 대화와 최신 공개분을 기준으로, 가설을 최대한 걷어낸 <b>기준점</b>이다. 이후의 모든 예측은 이 목록을 훼손하지 않는 방향으로 세워야 한다.</p>
+<ol class="fact-list">
+<li><div class="fact-title">엘드르는 ‘큰 어르신’이 아니다.</div><div class="fact-desc">니펠은 엘드르와 별개인 존재를 ‘큰 어르신’으로 지칭한다.</div></li>
+<li><div class="fact-title">니펠은 엘드르와 큰 어르신의 차이를 인지한다.</div><div class="fact-desc">즉 니펠은 큰 어르신의 존재를 알고 있으며, 엘드르와 동일시하지 않는다.</div></li>
+<li><div class="fact-title">엘리아스의 세계수 외에 다른 세계수들이 존재한다.</div><div class="fact-desc">세계수 하나만 존재하는 단일 구조가 아니라 복수의 세계수 체계가 존재한다.</div></li>
+<li><div class="fact-title">세계수의 계통은 ‘일곱’이라는 구조와 연결되어 있다.</div><div class="fact-desc">최신 스토리에서 일곱 세계수와 일곱 자매를 연결해 읽을 수 있는 직접적인 재료가 제시됐다.</div></li>
+<li><div class="fact-title">일곱 세계수 위에는 더 상위의 ‘위대한 나무’에 해당하는 존재가 제시된다.</div><div class="fact-desc">현재 논의에서는 흔히 ‘대빵대빵장작’으로 부르는 상위 계통의 존재다.</div></li>
+<li><div class="fact-title">에버아이스 측은 ‘죽음’의 존재를 인지한다.</div><div class="fact-desc">따라서 죽음에 관한 정보는 현재 엘리아스 내부만의 완전한 고립 정보가 아니다.</div></li>
+<li><div class="fact-title">에버아이스는 엘리아스의 위치를 알지 못한다.</div><div class="fact-desc">‘다른 세계/자매의 존재를 안다’와 ‘그 세계의 위치를 안다’는 별개의 문제다.</div></li>
+<li><div class="fact-title">일곱 영원살이는 최초의 인간과 관련된 기억을 가지고 있다.</div><div class="fact-desc">따라서 현재 영원살이를 단순한 ‘후대의 기억 없는 복제품’으로만 설명하기 어렵다.</div></li>
+
+<li><div class="fact-title">‘일곱 새싹의 노래’에는 서로 다른 성질을 가진 일곱 새싹이 등장한다.</div><div class="fact-desc">첫째의 현명함, 일곱째의 행복 등 후대의 인물·세계수 특성과 대응시킬 수 있는 재료가 있다. 다만 정확한 1:1 대응표는 아직 해석 영역이다.</div></li>
+<li><div class="fact-title">엘리아스 이전의 황무지와 일곱 존재의 흔적이 과거 서사에 반복된다.</div><div class="fact-desc">‘아무것도 없는 곳’, ‘일곱’, ‘잠’, ‘새싹’이 같은 서사군에서 반복적으로 사용된다.</div></li>
+<li><div class="fact-title">트릭컬의 주요 서사는 죽음·겨울·잠·성장·각성의 대립을 반복한다.</div><div class="fact-desc">이것은 팬 해석 이전에도 여러 메인/사도 스토리에서 재사용되는 상징 구조다.</div></li>
+</ol>
+</section>
+<section class="chapter" id="map">
+<div class="chapter-num">CHAPTER 02</div>
+<h2>현재 가장 단순한 세계관 구조도</h2>
+<p>확정 정보만으로는 계보의 모든 화살표를 채울 수 없다. 아래 도식에서 <b>실선은 비교적 확실한 계층</b>, <b>점선은 아직 동일성·인과가 확정되지 않은 연결</b>이다.</p>
+<div class="diagram">
+<div class="tree-flow">
+<div class="node q">큰 어르신</div>
+<div class="arrow">⋮</div>
+<div class="node h">위대한 나무 / 대빵대빵장작</div>
+<div class="mini">두 명칭의 동일성은 아직 ‘강한 추론’</div>
+<div class="arrow">↓</div>
+<div class="node">일곱 세계수</div>
+<div class="branch seven">
+<div class="node h">① 첫째<br/>에버아이스 계통?</div>
+<div class="node">②</div><div class="node">③</div><div class="node">④</div><div class="node">⑤</div><div class="node">⑥</div>
+<div class="node h">⑦ 막내<br/>엘드르 계통?</div>
+</div>
+<div class="arrow">↓ 각자의 세계</div>
+<div class="branch">
+<div class="node">다른 세계들</div>
+<div class="node h">엘리아스</div>
+<div class="node">미공개 세계들</div>
+</div>
+<div class="dashed"></div>
+<div class="branch" style="grid-template-columns:repeat(2,1fr)">
+<div class="node q">일곱 영원살이<br/>1:1 대응?</div>
+
+<div class="node q">니펠<br/>세계 공통의 죽음?</div>
+</div>
+</div>
+</div>
+<div class="grid">
+<div class="card"><h3>가장 강한 상위 구조</h3><p><span class="badge strong">강한 추론</span></p><p><b>위대한 나무 → 일곱 세계수 → 각자의 세계</b>라는 계층은 최신 떡밥을 가장 적은 가정으로 설명한다.</p></div>
+<div class="card"><h3>가장 큰 미확정점</h3><p><span class="badge open">미해결</span></p><p><b>현재 엘리아스의 엘드르가 정확히 일곱째 세계수인가?</b> 그리고 우이는 그 세계수의 무엇인가?</p></div>
+</div>
+</section>
+<section class="chapter" id="relations">
+<div class="chapter-num">CHAPTER 03</div>
+<h2>핵심 존재 관계: 누가 무엇을 알고 있는가</h2>
+<table>
+<thead><tr><th>존재</th><th>확인된 정보</th><th>현재 가장 중요한 해석</th></tr></thead>
+<tbody>
+<tr><td><b>니펠</b></td><td>엘드르와 ‘큰 어르신’을 구분한다. 죽음과 직접 연결된다.</td><td>엘리아스 내부의 단순 사고 산물보다 더 넓은 계통을 알고 있을 가능성.</td></tr>
+<tr><td><b>엘드르</b></td><td>엘리아스 세계수. 최초의 인간, 죽음, 겨울, 영원살이 서사의 중심.</td><td>일곱째 세계수 또는 그 파생체일 가능성이 높지만 정확한 동일성은 미확정.</td></tr>
+<tr><td><b>에버아이스</b></td><td>죽음의 존재를 인지하지만 엘리아스 위치는 모른다.</td><td>세계수들은 서로의 존재/공통 기억은 알아도 ‘좌표’를 공유하지 않을 수 있음.</td></tr>
+<tr><td><b>우이</b></td><td>‘행복’이라는 일곱째 새싹의 핵심 속성과 강하게 겹친다.</td><td>엘드르/일곱째 세계수의 분신·기억·원형·대응체 중 하나일 가능성.</td></tr>
+
+<tr><td><b>큰 어르신</b></td><td>니펠이 엘드르와 별개의 존재로 취급한다.</td><td>위대한 나무와 동일 존재라면 세계수 계보 최상위의 ‘억제자’가 된다.</td></tr>
+</tbody>
+</table>
+</section>
+<section class="chapter" id="sprouts">
+<div class="chapter-num">CHAPTER 04</div>
+<h2>「일곱 새싹의 노래」를 다시 읽는 방법</h2>
+<p class="lead">예전에는 ‘일곱 자매의 배경 설명’으로 읽기 쉬웠다. 하지만 일곱 세계수가 실제로 존재한다는 정보가 나오면서, <b>새싹이라는 단어가 문자 그대로 세계수의 어린 형태를 동시에 가리키는 이중 은유</b>일 가능성이 커졌다.</p>
+<div class="quote">“아무 것도 없는 곳에서 피어난 행복은, 아무런 의미가 없는 것이었기에.”</div>
+<p>일곱째 새싹의 이 구절은 단순히 우이의 성격을 설명하는 데서 끝나지 않을 수 있다. 만약 일곱째 세계수가 자신의 세계에서 ‘행복’을 구현하려 했다면, 이 문장은 <b>엘리아스의 기원 자체</b>를 압축한 문장이 된다.</p>
+<div class="diagram">
+<div class="tree-flow">
+<div class="node">아무것도 없는 세계 / 황무지</div>
+<div class="arrow">↓</div>
+<div class="node h">행복을 만들고 싶다는 욕망</div>
+<div class="arrow">↓</div>
+<div class="node q">자매·주민·세계의 재현 또는 창조</div>
+<div class="arrow">↓</div>
+<div class="node q">불행과 죽음을 제거하려는 시도</div>
+<div class="arrow">↓</div>
+<div class="node h">변화까지 사라진 ‘영원한 행복’</div>
+<div class="arrow">↓</div>
+<div class="node q">그래서 결국 아무도 행복하지 못함</div>
+</div>
+</div>
+<div class="note"><b>현재의 핵심 해석.</b> “행복”은 일곱째 자매의 성격이면서 동시에 일곱째 세계수의 <b>세계 설계 철학</b>일 수 있다. 이 경우 우이의 ‘불행한 기억을 지우는 방식’과 엘드르의 ‘죽음을 밀어내는 방식’은 동일한 실패를 서로 다른 크기로 반복한다.</div>
+</section>
+
+<section class="chapter" id="models">
+<div class="chapter-num">CHAPTER 05</div>
+<h2>일곱 영원살이와 최초의 인간: 세 가지 경쟁 가설</h2>
+<p>“일곱 영원살이가 최초의 인간과 관련된 기억을 가지고 있다”는 사실 때문에 단순한 후대 복제설은 그대로 유지하기 어렵다. 현재는 다음 세 모델이 경쟁한다.</p>
+<div class="grid">
+<div class="card">
+<h3>A. 기억까지 복제한 재현설</h3>
+<p><span class="badge hypo">가설</span></p>
+<p>일곱째 세계수가 과거의 자매들을 재현하면서 그들이 지녔던 기억까지 함께 계승시켰다는 모델.</p>
+<p class="mini">약점: 단순한 외형·성격의 재현을 넘어 왜 과거 기억까지 보존되었는지 추가 설명이 필요하다.</p>
+</div>
+<div class="card">
+<h3>B. 실제 동시대 생존설</h3>
+<p><span class="badge strong">강한 추론</span></p>
+<p>현재의 일곱 영원살이 자체가 최초의 인간 시대에 실제로 존재했고, 직접 사건을 겪었다는 모델.</p>
+<p class="mini">강점: 기억을 가장 적은 가정으로 설명한다.</p>
+</div>
+<div class="card">
+<h3>C. 같은 원형에서 분화설</h3>
+<p><span class="badge strong">강한 추론</span></p>
+<p>일곱 세계수와 일곱 영원살이가 어느 한쪽의 복제품이 아니라 <b>동일한 원형/기억/속성</b>에서 각각 분화했다는 모델.</p>
+<p class="mini">강점: 세계수와 영원살이의 1:1 성격 대응을 설명하기 쉽다.</p>
+</div>
+<div class="card">
+<h3>현재의 판단</h3>
+<p>단순 복제설은 약해졌고, <b>B와 C를 섞은 형태</b>가 가장 많은 떡밥을 덜 억지스럽게 설명한다.</p>
+<p class="mini">즉 ‘직접 경험한 존재’이면서 동시에 ‘세계수와 같은 원형을 공유’할 수 있다.</p>
+</div>
+</div>
+</section>
+<section class="chapter" id="nifel">
+<div class="chapter-num">CHAPTER 06</div>
+<h2>니펠은 ‘최종 악역’보다 죽음의 시험일 수 있다</h2>
+<p>사용자 제공 ZIP의 2025년 분석글 「트릭컬은 엘드르의 성장 스토리일까」는 트릭컬 전체를 <b>성장을 받아들이려는 세계수와, 변화하지 않으려는 세계수의 충돌</b>로 읽는다. 최신 니펠 떡밥은 이 해석을 다시 강하게 만든다.</p>
+<div class="diagram">
+<div class="tree-flow">
+<div class="branch">
+<div class="node h">성장<br/>현실 · 책임 · 변화</div>
+<div class="node">세계수 / 엘리아스</div>
+<div class="node q">정체<br/>꿈 · 반복 · 영원</div>
+</div>
+<div class="arrow">↓　　　　　　↓　　　　　　↓</div>
+<div class="branch">
+<div class="node">인간 / 교주</div>
+<div class="node q">죽음 / 니펠</div>
+<div class="node">죽음을 지우려는 시도</div>
+</div>
+</div>
+</div>
+<p>이 틀에서 죽음은 단순한 적이 아니다. <b>죽음을 이해하고, 상실을 견디고, 자신의 선택에 책임지는 것</b>이 성장이라면 니펠은 세계수가 피하려 했던 현실 자체에 가깝다.</p>
+<div class="quote">죽음을 없애는 것이 결말이 아니라, 죽음이 존재해도 살아가는 법을 배우는 것이 결말일 수 있다.</div>
+<p>또 다른 저장글 「인동딸기, 겨우살이, 그리고 영춘화」의 <b>겨울 ↔ 봄</b>, <b>겨우살이 ↔ 영춘화</b> 대칭도 이 구조와 맞물린다. 특히 ‘영춘’은 문자 그대로 봄을 맞이한다는 뜻이므로, <b>겨울/죽음 이후의 재생</b>이라는 상징을 반복한다.</p>
+</section><section class="chapter" id="motifs">
+<div class="chapter-num">CHAPTER 07</div>
+<h2>연관 서사·설화·상징 모티브</h2>
+<p class="lead">아래 항목은 작품이 공식적으로 “이 설화를 모티브로 했다”고 밝힌 목록이 아니다. 다만 트릭컬이 반복해서 쓰는 <b>나무·겨울·죽음·첫 인간·껍질·순환·재생</b>의 상징과 구조적으로 닮은 신화·종교적 이미지다. 따라서 <b>직접 모티브 후보</b>와 <b>비교에 유용한 평행 서사</b>를 구분해서 읽는 편이 안전하다.</p>
+<div class="motif-map">
+<svg aria-label="트릭컬과 연관 설화의 모티브 지도" role="img" viewbox="0 0 1000 520">
+<circle cx="500" cy="260" fill="#241d16" r="105" stroke="#c9a66b" stroke-width="2"></circle>
+<text fill="#eee7d8" font-size="24" text-anchor="middle" x="500" y="245">트릭컬 핵심 모티브</text>
+<text fill="#c9a66b" font-size="17" text-anchor="middle" x="500" y="278">나무 · 죽음 · 겨울 · 재생</text>
+<text fill="#aaa093" font-size="15" text-anchor="middle" x="500" y="306">첫 인간 · 기억 · 반복</text>
+<g opacity=".9" stroke="#66533d" stroke-width="2">
+<line x1="417" x2="225" y1="196" y2="104"></line><line x1="500" x2="500" y1="155" y2="55"></line>
+<line x1="582" x2="787" y1="194" y2="102"></line><line x1="605" x2="860" y1="260" y2="260"></line>
+<line x1="581" x2="782" y1="329" y2="426"></line><line x1="500" x2="500" y1="365" y2="470"></line>
+<line x1="418" x2="220" y1="328" y2="427"></line><line x1="395" x2="135" y1="260" y2="260"></line>
+</g>
+<g font-family="Malgun Gothic, sans-serif">
+<g><rect fill="#12191a" height="92" rx="8" stroke="#57767a" width="260" x="95" y="55"></rect><text fill="#e8e1d7" font-size="18" text-anchor="middle" x="225" y="90">위그드라실</text><text fill="#9eb7b8" font-size="14" text-anchor="middle" x="225" y="119">세계들을 잇는 세계수</text></g>
+<g><rect fill="#181411" height="74" rx="8" stroke="#78613c" width="256" x="372" y="18"></rect><text fill="#eadfcf" font-size="18" text-anchor="middle" x="500" y="49">세피로트 · 생명나무</text><text fill="#c7aa75" font-size="14" text-anchor="middle" x="500" y="73">상위 근원 → 세계로의 발현</text></g>
+<g><rect fill="#1c1312" height="96" rx="8" stroke="#865751" width="274" x="650" y="54"></rect><text fill="#ead8d5" font-size="18" text-anchor="middle" x="787" y="89">클리포트 · 깨진 그릇</text><text fill="#c69b96" font-size="14" text-anchor="middle" x="787" y="116">껍질 · 파손 · 수복(Tikkun)</text></g>
+<g><rect fill="#14191b" height="90" rx="8" stroke="#4e6872" width="236" x="742" y="215"></rect><text fill="#dce7e8" font-size="18" text-anchor="middle" x="860" y="250">니플헤임</text><text fill="#9eb5bc" font-size="14" text-anchor="middle" x="860" y="278">안개 · 냉기 · 죽음의 영역</text></g>
+<g><rect fill="#171511" height="96" rx="8" stroke="#75623f" width="262" x="651" y="378"></rect><text fill="#eee1c7" font-size="18" text-anchor="middle" x="782" y="413">겨우살이 · 발드르</text><text fill="#c8b283" font-size="14" text-anchor="middle" x="782" y="441">불사에 남겨진 단 하나의 예외</text></g>
+<g><rect fill="#161810" height="66" rx="8" stroke="#68794e" width="266" x="367" y="438"></rect><text fill="#e3ead6" font-size="18" text-anchor="middle" x="500" y="466">영춘화</text><text fill="#aebe91" font-size="14" text-anchor="middle" x="500" y="489">겨울 끝에서 먼저 피는 봄</text></g>
+<g><rect fill="#171410" height="96" rx="8" stroke="#655848" width="272" x="84" y="378"></rect><text fill="#e8ded1" font-size="18" text-anchor="middle" x="220" y="413">우로보로스 · 요르문간드</text><text fill="#b7aa9b" font-size="14" text-anchor="middle" x="220" y="441">죽음과 재생의 닫힌 순환</text></g>
+<g><rect fill="#171719" height="90" rx="8" stroke="#5d5c70" width="224" x="23" y="215"></rect><text fill="#e1e1ea" font-size="18" text-anchor="middle" x="135" y="250">인동딸기</text><text fill="#aaaabd" font-size="14" text-anchor="middle" x="135" y="278">흰 열매 · 유령의 흔적</text></g>
+</g>
+</svg>
+</div>
+<div class="motif-grid">
+<article class="motif-card">
+<div class="motif-tag direct">작품 내 직접 단서</div>
+<h3>1. 인동딸기 — ‘유령의 흔적’을 냄새로 남기는 식물</h3>
+<p><b>인동딸기(Symphoricarpos albus)</b>는 일반적으로 snowberry로 불리는 북미 원산 관목이며, 흰 열매가 가을·겨울까지 남는다. 작품의 팬 분석에서는 ‘Ghostberry’라는 영어권 별칭에 특히 주목해, 셰이디·유령 관련 인물에게서 인동딸기 냄새가 나는 장치를 <b>존재하지 않는 자가 남기는 흔적</b>으로 읽는다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> 유령, 기억의 잔향, 실체가 사라져도 남는 표식. 식물 자체의 전승보다 <b>이름과 이미지의 언어유희</b>를 스토리 장치로 쓰는 사례에 가깝다.</p>
+</article>
+<article class="motif-card">
+<div class="motif-tag high">연결 강도 높음</div>
+<h3>2. 겨우살이와 발드르 — 불사 세계에 남은 단 하나의 예외</h3>
+<p>북유럽 신화에서 발드르는 거의 모든 존재에게서 해치지 않겠다는 맹세를 받지만 <b>겨우살이만 제외</b>되고, 로키는 바로 그 예외를 이용해 발드르를 죽음으로 이끈다. 이후 발드르는 라그나로크 뒤의 새 세계에서 돌아올 존재로 예고된다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> 죽음을 배제해 완전한 세계를 만들려 해도, 배제된 작은 예외가 오히려 죽음을 되돌려온다는 구조가 니펠·겨울 서사와 매우 잘 맞는다. <b>죽음 → 붕괴 → 재생</b>까지 한 묶음으로 연결된다.</p>
+</article>
+<article class="motif-card">
+<div class="motif-tag high">연결 강도 높음</div>
+<h3>3. 위그드라실 — 여러 세계를 하나로 묶는 세계수</h3>
+<p>북유럽 신화의 위그드라실은 하늘·인간 세계·죽음의 영역을 잇는 거대한 세계수다. 뿌리는 죽음과 지혜의 영역으로 내려가며, 뿌리 아래에서는 니드호그가 나무를 갉아먹는다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> ‘한 그루의 거대한 나무가 여러 세계의 질서를 지탱한다’, ‘뿌리 아래에 죽음과 위협이 존재한다’는 도식은 <b>위대한 나무–일곱 세계수–각 세계</b> 구조를 읽을 때 가장 직관적인 비교 대상이다.</p>
+</article>
+<article class="motif-card">
+<div class="motif-tag medium">명칭 모티브 후보</div>
+<h3>4. 니플헤임(Niflheim) — 안개·냉기·죽음</h3>
+<p>니플헤임은 북유럽 우주론에서 <b>안개와 원초적 냉기</b>의 세계로 설명되며, 후대 전승에서는 죽은 자의 영역과도 겹쳐진다. 이름의 <i>Nifl-</i> 자체가 안개·어둠 계열의 의미를 가진다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> ‘니펠’이라는 이름, 겨울, 죽음, 안개라는 이미지가 한데 모인다. 다만 <b>니펠 = Niflheim에서 직접 따온 이름</b>이라고 공식 확인된 것은 아니므로 음성·상징상의 강한 후보로만 두는 편이 맞다.</p>
+</article>
+<article class="motif-card">
+<div class="motif-tag high">구조 비교에 중요</div>
+<h3>5. 세피로트와 생명나무 — 보이지 않는 근원이 세계로 내려오는 구조</h3>
+<p>카발라에서 세피로트는 무한한 신적 근원인 <b>아인 소프(Ein Sof)</b>가 유한한 세계와 관계하기 위한 열 개의 발현·속성으로 설명된다. 이들은 흔히 ‘생명나무’ 도식으로 연결된다. 일부 전통에서는 상위 세 세피로트 뒤에 일곱 세피로트가 이어지는 구조도 강조된다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> 직접 숫자는 다르지만 <b>상위의 알 수 없는 근원 → 분화된 존재들 → 현실 세계</b>라는 계층형 우주론이 ‘위대한 나무 → 일곱 세계수 → 각 세계’와 닮아 있다.</p>
+</article>
+<article class="motif-card">
+<div class="motif-tag high">구조 비교에 중요</div>
+<h3>6. 클리포트·깨진 그릇·티쿤 — 파손된 세계를 다시 수복한다</h3>
+<p>루리아 카발라의 <b>그릇의 파괴(Shevirat ha-Kelim)</b> 서사에서는 신적 빛을 담던 그릇이 깨지고, 그 파편에서 <b>켈리폿/클리포트(Qelipot, ‘껍질’)</b>가 생기며 빛의 불꽃이 그 안에 갇힌다. 이후 세계의 과제는 <b>티쿤(Tikkun, 수복)</b>을 통해 흩어진 것을 다시 바로잡는 것이다.</p>
+<p>특히 이 전승에서는 <b>첫 인간 아담이 수복을 완성할 가능성을 가졌지만 실패</b>했다는 구조도 등장한다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> 첫 인간, 깨진 질서, 세계의 재정렬, ‘RE:VIVE’라는 제목까지 연결하면 구조적 유사성이 매우 크다. 다만 ‘세피로트 = 영원살이, 클리포트 = 몽환살이’처럼 1:1로 고정하는 것은 팬 해석 단계다.</p>
+</article>
+<article class="motif-card">
+<div class="motif-tag medium">보편적 원형</div>
+<h3>7. 에덴의 생명나무와 지식나무 — 첫 인간, 나무, 지식, 죽음</h3>
+<p>창세기의 에덴에는 <b>생명나무</b>와 <b>선악을 알게 하는 나무</b>가 있고, 첫 인간이 지식을 얻는 사건 뒤에 죽음과 추방 문제가 본격적으로 들어온다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> ‘첫 인간이 신성한 나무와 접촉하면서 이전에는 없던 지식과 죽음의 문제를 촉발한다’는 틀은 트릭컬의 최초 인간–세계수–니펠 관계를 비교할 때 유용하다. 매우 오래된 보편적 원형이므로 직접 차용 여부는 가장 신중하게 봐야 한다.</p>
+</article>
+<article class="motif-card">
+<div class="motif-tag medium">순환 모티브</div>
+<h3>8. 우로보로스와 요르문간드 — 끝이 시작으로 돌아오는 세계</h3>
+<p>우로보로스는 자신의 꼬리를 무는 뱀으로, 파괴와 생성이 반복되는 <b>순환·영원·재생</b>의 상징으로 널리 해석된다. 북유럽의 요르문간드 역시 세계를 감싸고 꼬리를 문 거대한 뱀이며, 라그나로크에서 기존 질서의 붕괴와 새 세계의 탄생에 연결된다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> 영원히 같은 상태로 머무는 ‘정체’와, 죽고 다시 태어나는 ‘순환’은 겉으로 모두 영원해 보이지만 정반대다. 트릭컬이 선택할 결말이 <b>정지된 영원</b>이 아니라 <b>죽음을 포함한 순환</b>이라면 매우 중요한 비교 모티브다.</p>
+</article>
+<article class="motif-card wide">
+<div class="motif-tag direct">식물 상징</div>
+<h3>9. 영춘화 — 겨울 한복판에서 봄을 먼저 알리는 꽃</h3>
+<p><b>영춘화(Jasminum nudiflorum, winter jasmine)</b>는 겨울부터 이른 봄 사이에 노란 꽃을 피우며, 한자 이름 迎春花는 말 그대로 <b>‘봄을 맞이하는 꽃’</b>이다. 잎이 나기 전에 꽃이 먼저 피는 특성도 뚜렷하다.</p>
+<p class="motif-link"><b>트릭컬 연결:</b> 겨울이 죽음과 정체를 뜻한다면 영춘은 ‘겨울이 아직 끝나지 않았는데도 시작되는 다음 생명’이다. 따라서 겨우살이의 <b>겨울 속 생존</b>과 영춘화의 <b>겨울을 넘어 봄을 호출함</b>은 서로 다른 방식의 생존/재생 상징으로 읽을 수 있다.</p>
+</article>
+</div>
+<div class="note"><b>가장 주목할 조합.</b> 현재로서는 <b>위그드라실(세계수) + 발드르의 겨우살이(죽음을 배제한 체계의 예외) + 니플헤임(안개·냉기·죽음) + 루리아 카발라의 파손과 티쿤(첫 인간과 세계 수복)</b>이 트릭컬의 장기 메인 서사와 특히 잘 겹친다. 한 가지 신화만 그대로 옮겼다기보다 여러 전승의 상징을 조합해 자체 세계관으로 재구성했을 가능성을 우선하는 편이 자연스럽다.</div>
+</section>
+<section class="chapter" id="future">
+<div class="chapter-num">CHAPTER 08</div>
+<h2>차후 스토리는 어떻게 진행될까</h2>
+<div class="confidence">
+<div class="bar-row"><span>큰 어르신 = 위대한 나무 공개</span><div class="bar"><div class="fill" style="width:86%"></div></div><span>매우 높음</span></div>
+<div class="bar-row"><span>우이 ↔ 일곱째 세계수 관계 확정</span><div class="bar"><div class="fill" style="width:84%"></div></div><span>매우 높음</span></div>
+<div class="bar-row"><span>다른 세계수/세계의 순차 등장</span><div class="bar"><div class="fill" style="width:79%"></div></div><span>높음</span></div>
+<div class="bar-row"><span>니펠을 제거보다 ‘수용’으로 해결</span><div class="bar"><div class="fill mid" style="width:72%"></div></div><span>높음</span></div>
+
+<div class="bar-row"><span>엘드르가 위대한 나무를 의도적으로 모방</span><div class="bar"><div class="fill low" style="width:45%"></div></div><span>중간 이하</span></div>
+</div>
+<h3>예상 1 · ‘큰 어르신’의 정체 확인</h3>
+<p>니펠이 큰 어르신을 엘드르와 구분한 이상, 이 명칭은 장기 미회수 떡밥으로 남기 어렵다. 위대한 나무와 동일 존재라면 <b>니펠조차 규칙을 의식하는 상위 질서</b>가 생긴다.</p>
+<h3>예상 2 · 우이의 정체가 엘드르 문제의 열쇠가 됨</h3>
+<p>우이의 ‘행복’과 일곱째 새싹, 일곱째 세계수의 속성이 합쳐지면 우이는 단순한 막내 영원살이가 아니라 <b>엘드르가 잃어버린 자아/기억/권능의 인간형 표현</b>일 가능성이 있다.</p><h3>예상 3 · 다른 세계수의 세계가 순차적으로 무대에 등장</h3><p>에버아이스가 ‘엘리아스 밖의 세계’가 실제로 존재한다는 증거가 된 이상, 후속 서사는 다른 세계수를 하나씩 보여주며 <b>각 자매의 속성이 세계 전체에서 어떤 방식으로 극단화되었는지</b>를 비교하는 방향으로 확장될 가능성이 높다.</p>
+
+
+<h3>예상 4 · 니펠과의 결말은 전투력보다 세계관의 선택</h3>
+<p>죽음을 다시 봉인하면 세계수는 똑같은 실수를 반복한다. 따라서 최종 선택은 <b>죽음이 있는 세계를 받아들일 것인가, 영원하지만 정체된 세계로 돌아갈 것인가</b>에 가까울 가능성이 높다.</p>
+</section>
+<section class="chapter" id="flow">
+<div class="chapter-num">CHAPTER 09</div>
+<h2>현재 가장 그럴듯한 전체 스토리 흐름</h2>
+<p class="lead">아래 타임라인은 <b>확정 사건과 가설을 섞되, 색으로 구분한 통합 모델</b>이다. 빨간 점은 아직 예측 영역이다.</p>
+<div class="timeline">
+<div class="event"><h4>1. 위대한 나무와 상위 세계수 계보</h4><p>일곱 세계수보다 위에 있는 모태적 존재가 존재한다.</p></div>
+<div class="event future"><h4>2. 최초의 인간과 태초의 사건</h4><p>최초의 인간이 세계수 계통과 만나며 죽음·욕망·감정·성장의 문제가 시작되었을 가능성.</p></div>
+<div class="event"><h4>3. 일곱 자매 / 일곱 새싹의 기억</h4><p>일곱 영원살이에게 최초의 인간과 연결된 기억이 남는다.</p></div>
+<div class="event future"><h4>4. 일곱 세계수의 분화와 각자의 세계</h4><p>각 세계수는 서로 다른 세계에 뿌리를 내리고, 서로의 정확한 위치는 알지 못하게 된다.</p></div>
+<div class="event future"><h4>5. 일곱째 세계수의 ‘행복’ 시도</h4><p>아무것도 없는 세계에서 행복한 세계를 만들려 했으나, 불행과 죽음을 지우는 과정에서 정체가 시작된다.</p></div>
+<div class="event"><h4>6. 죽음과 니펠의 문제</h4><p>엘리아스의 질서에서 배제된 죽음이 니펠이라는 존재/개념으로 세계수와 충돌한다.</p></div>
+<div class="event future"><h4>7. 분열 또는 기억 상실</h4><p>엘드르·우이·영원살이의 현재 상태는 과거의 온전한 구조가 깨진 결과일 가능성이 높다.</p></div>
+<div class="event"><h4>8. 현재 교주의 도착</h4><p>인간이 다시 세계수의 고정된 질서에 변화를 가져오는 촉매가 된다.</p></div>
+<div class="event future"><h4>9. 다른 세계와 세계수의 발견</h4><p>에버아이스 이후 ‘엘리아스 밖’이 메인 서사의 실제 무대로 확장된다.</p></div>
+<div class="event future"><h4>10. RE:VIVE의 결론</h4><p>과거로 완전히 복원하는 것이 아니라, 죽음과 변화를 포함한 새로운 순환을 선택하는 방향.</p></div>
+</div>
+</section>
+<section class="chapter" id="watch">
+<div class="chapter-num">CHAPTER 10</div>
+<h2>앞으로 스토리에서 반드시 체크할 문장들</h2>
+<table>
+<thead><tr><th>나오면 중요한 정보</th><th>무엇을 판별하는가</th></tr></thead>
+<tbody>
+<tr><td>“큰 어르신”의 고유명사 또는 외형</td><td>큰 어르신 = 위대한 나무 여부</td></tr>
+<tr><td>에버아이스가 영춘동백/엘드르를 직접 자매라고 부름</td><td>엘드르의 일곱째 세계수 동일성</td></tr>
+<tr><td>우이가 세계수의 기억을 자신의 시점으로 회상</td><td>우이 = 분신/분리 자아 가설</td></tr>
+
+
+<tr><td>니펠이 다른 세계수의 이름을 구체적으로 언급</td><td>니펠의 활동 범위가 엘리아스 외부까지인지 판별</td></tr>
+<tr><td>첫 번째 인간과 일곱 세계수의 직접 회상</td><td>일곱 영원살이/세계수 중 누가 먼저였는지 판별</td></tr>
+<tr><td>‘일곱 새싹’이 실제 세계수로 명명됨</td><td>에피카의 노래가 세계관 역사서에 가까운지 확정</td></tr>
+</tbody>
+</table>
+<details open=""><summary>현재 가장 강한 한 문장 요약</summary><div class="inside">트릭컬 리바이브의 메인 스토리는 <b>“불행과 죽음을 지워 영원한 행복을 만들려 한 세계가, 인간을 통해 변화와 죽음을 받아들이며 다시 성장하는 이야기”</b>로 수렴할 가능성이 높다.</div></details>
+
+<details><summary>우이 가설 한 문장 요약</summary><div class="inside">우이의 ‘행복만 남기려는 태도’는 일곱째 세계수가 세계 전체에서 반복한 실패를 한 인물 안에 축소한 형태일 수 있다.</div></details>
+</section>
+<section class="chapter" id="sources">
+<div class="chapter-num">APPENDIX</div>
+<h2>자료와 해석의 경계</h2>
+<p>이 문서는 다음 세 종류의 정보를 합쳐 구성했다.</p>
+<table>
+<thead><tr><th>자료</th><th>역할</th><th>취급</th></tr></thead>
+<tbody>
+<tr><td>메인스토리 시즌 3 챕터 7-A</td><td>에버아이스, 세계수 계통, 최신 세계관 떡밥</td><td><span class="badge confirmed">정사 기준</span></td></tr>
+<tr><td>사용자 제공 저장글 「트릭컬은 엘드르의 성장 스토리일까」 (2025-01-30)</td><td>성장/정체, 의지/꿈, 세계수의 양면성 분석</td><td><span class="badge hypo">팬 분석</span></td></tr>
+<tr><td>사용자 제공 저장글 「인동딸기, 겨우살이, 그리고 영춘화」 (2025-03-09)</td><td>겨울/봄, 겨우살이/영춘화의 상징 분석</td><td><span class="badge hypo">팬 분석</span></td></tr>
+<tr><td>본 대화에서 정리한 니펠·우이·일곱 새싹 가설</td><td>새로운 연결 모델과 향후 예측</td><td><span class="badge strong">추론/가설</span></td></tr>
+</tbody>
+</table>
+<div class="warning"><b>주의:</b> 팬 분석글의 카발라·식물 상징 해석은 작품의 공식 설정 그 자체가 아니다. 이 문서에서는 ‘작중 사실을 설명하는 데 얼마나 잘 맞는가’를 기준으로 활용했다.</div>
+
+<h3>설화·상징 비교에 사용한 외부 참고자료</h3>
+<table>
+<thead><tr><th>주제</th><th>참고자료</th><th>핵심 확인점</th></tr></thead>
+<tbody>
+<tr><td>세피로트 / 생명나무</td><td><a href="https://www.myjewishlearning.com/article/sefirot/" rel="noopener" target="_blank">My Jewish Learning — What Are the Sefirot?</a></td><td>아인 소프와 유한 세계를 잇는 열 개의 발현.</td></tr>
+<tr><td>클리포트 / 티쿤</td><td><a href="https://www.myjewishlearning.com/article/tikkun-in-lurianic-kabbalah/" rel="noopener" target="_blank">My Jewish Learning — Tikkun in Lurianic Kabbalah</a></td><td>그릇의 파괴, 껍질(qelipot), 첫 인간 아담과 우주적 수복.</td></tr>
+<tr><td>생명나무 / 에덴</td><td><a href="https://www.myjewishlearning.com/article/what-is-the-tree-of-life-etz-chaim/" rel="noopener" target="_blank">My Jewish Learning — Tree of Life</a></td><td>에덴의 생명나무와 카발라 생명나무 전통.</td></tr>
+<tr><td>위그드라실</td><td><a href="https://en.wikisource.org/wiki/1911_Encyclop%C3%A6dia_Britannica/Yggdrasil" rel="noopener" target="_blank">Encyclopædia Britannica 1911 — Yggdrasil</a></td><td>하늘·땅·죽음의 영역을 잇는 세계수와 뿌리 아래의 위협.</td></tr>
+<tr><td>겨우살이 / 발드르</td><td><a href="https://en.wikisource.org/wiki/1911_Encyclop%C3%A6dia_Britannica/Mistletoe" rel="noopener" target="_blank">Encyclopædia Britannica 1911 — Mistletoe</a></td><td>발드르의 죽음에 사용된 겨우살이 전승.</td></tr>
+<tr><td>인동딸기</td><td><a href="https://research.fs.usda.gov/feis/species-reviews/symalb" rel="noopener" target="_blank">US Forest Service — Common Snowberry</a></td><td>흰 열매가 특징인 Symphoricarpos albus의 생태와 분류.</td></tr>
+<tr><td>영춘화</td><td><a href="https://www.suwon.go.kr/web/board/BD_board.view.do?bbsCd=1378&amp;seq=20260322154032061" rel="noopener" target="_blank">일월수목원 — 영춘화</a></td><td>迎春의 뜻, 2~3월 개화, winter jasmine.</td></tr>
+</tbody>
+</table>
+<p class="mini">최신 공개 상태 확인: 2026-09-03 앱 버전 기록에서 ‘메인스토리 시즌3 챕터7-A 오픈’이 확인됨. 본 문서는 이후 챕터 공개 전 기준의 분석서다.</p>
+</section>
+<footer class="footer">
+  TRICKCAL RE:VIVE · WORLD TREE LORE DOSSIER<br/>
+  개인 분석용 정리 문서 · 확정/추론/가설을 분리해 읽을 것
+</footer>
+</main>
+</div>
+</body>
+</html>

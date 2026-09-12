@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="AI가 작성한 코드를 이해하는 방법에 관한 대본을, 설명과 사례를 살려 장별로 엮은 다크모드 독서본입니다.">
+  <title>AI가 만든 코드, 어떻게 이해할까 — 독서본</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #141615;
+      --paper: #1a1d1b;
+      --sidebar: #101311;
+      --ink: #dfdfd6;
+      --bright: #f0eee3;
+      --muted: #a3ada2;
+      --gold: #c7bb8b;
+      --green: #a7bba6;
+      --line: #343a34;
+      --size: 19px;
+      --leading: 1.98;
+      --serif: "Book Serif", "Noto Serif CJK KR", "Noto Serif KR", "Nanum Myeongjo", "Batang", "바탕", Georgia, serif;
+      --sans: "Book Sans", "Noto Sans CJK KR", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+    button, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-underline-offset: 5px; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .38; cursor: default; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+    ::selection { background: #535d45; color: #fffef6; }
+    .skip { position: fixed; top: -80px; left: 22px; z-index: 20; padding: 12px 20px; background: var(--gold); color: var(--bg); }
+    .skip:focus { top: 16px; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 9; width: 276px; padding: 34px 24px 24px; background: var(--sidebar); border-right: 1px solid var(--line); overflow-y: auto; }
+    .imprint { display: flex; align-items: center; gap: 11px; color: var(--gold); font-size: 12px; letter-spacing: .15em; }
+    .book-icon { width: 21px; height: 23px; flex: 0 0 auto; }
+    .side-title { margin: 26px 0 7px; font-family: var(--serif); font-size: 22px; font-weight: 500; line-height: 1.65; color: var(--bright); word-break: keep-all; }
+    .side-subtitle { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 0 0 34px; }
+    .toc-caption { font-size: 10px; letter-spacing: .2em; color: var(--muted); margin-bottom: 13px; }
+    .toc { display: grid; gap: 3px; }
+    .toc a { display: grid; grid-template-columns: 24px 1fr; align-items: start; gap: 8px; padding: 11px 10px; border-left: 2px solid transparent; border-radius: 0 5px 5px 0; text-decoration: none; color: var(--muted); font-size: 12px; line-height: 1.7; transition: background .15s, color .15s; }
+    .toc .num { color: #86937f; font-family: Georgia, serif; font-size: 12px; }
+    .toc a:hover { background: #1e241e; color: var(--bright); }
+    .toc a[aria-current="location"] { color: var(--bright); border-left-color: var(--gold); background: #22291f; }
+    .toc a[aria-current="location"] .num { color: var(--gold); }
+    .side-footer { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 32px; color: var(--muted); font-size: 11px; line-height: 1.85; }
+    .side-footer a { display: inline-block; margin-top: 8px; }
+    .workspace { margin-left: 276px; min-height: 100vh; }
+    .toolbar { position: sticky; top: 0; z-index: 6; min-height: 65px; padding: 12px 36px; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(20,22,21,.97); border-bottom: 1px solid var(--line); }
+    .location { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .reader-controls { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+    .reader-controls button { min-width: 35px; height: 34px; padding: 0 10px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; font-size: 12px; }
+    .reader-controls button:hover:not(:disabled) { background: #2a3028; border-color: #56604f; }
+    .size-label { padding: 0 3px; color: var(--muted); font-size: 11px; min-width: 27px; text-align: center; }
+    #menu-button { display: none; }
+    .shade { display: none; }
+    .book { max-width: 840px; margin: 0 auto; padding: 0 52px 90px; }
+    .cover { min-height: 560px; position: relative; padding: 69px 0 44px; border-bottom: 1px solid var(--line); }
+    .edition { display: flex; align-items: center; gap: 12px; color: var(--gold); font-size: 11px; font-weight: 400; letter-spacing: .14em; }
+    .edition::before { content: ""; width: 28px; height: 1px; background: var(--gold); }
+    h1 { font-family: var(--serif); color: var(--bright); font-size: clamp(36px, 3.8vw, 49px); font-weight: 500; letter-spacing: -.045em; line-height: 1.55; margin: 27px 0 22px; word-break: keep-all; }
+    h1 em { color: var(--gold); font-style: normal; }
+    .cover-sub { margin: 0; color: #b7c0b3; font-family: var(--serif); font-size: 18px; line-height: 1.95; word-break: keep-all; }
+    .cover-topics { display: flex; flex-wrap: wrap; gap: 0; list-style: none; padding: 0; margin: 27px 0 32px; }
+    .cover-topics li { font-size: 11px; color: var(--muted); }
+    .cover-topics li+li::before { content: "·"; margin: 0 12px; color: #6e7967; }
+    .start-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; padding: 11px 0; border-bottom: 1px solid var(--gold); color: var(--gold); text-decoration: none; font-size: 13px; }
+    .start-link span:last-child { font-size: 19px; }
+    .editor-note { margin: 27px 0 0; padding: 0; color: var(--muted); font-family: var(--sans); font-size: 12px; line-height: 1.85; }
+    summary { cursor: pointer; }
+    .editor-note summary { color: var(--muted); display: list-item; width: fit-content; }
+    .editor-note[open] { padding: 15px 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; }
+    .editor-note p { margin: 12px 0 0; }
+    .editor-note ul { padding-left: 19px; margin: 10px 0; }
+    .editor-note li+li { margin-top: 5px; }
+    .source-title { overflow-wrap: anywhere; }
+    .part { position: relative; padding: 58px 0 53px; border-bottom: 1px solid var(--line); scroll-margin-top: 12px; }
+    .chapter-label { color: var(--gold); font-size: 11px; font-weight: 400; letter-spacing: .16em; margin: 0 0 16px; }
+    h2 { font-family: var(--serif); color: var(--bright); font-size: 29px; font-weight: 500; letter-spacing: -.035em; line-height: 1.65; margin: 0 0 29px; word-break: keep-all; }
+    .prose { font-family: var(--serif); font-size: var(--size); line-height: var(--leading); letter-spacing: -.012em; word-break: keep-all; overflow-wrap: break-word; }
+    .prose p { margin: 0 0 21px; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { font-weight: 700; color: var(--bright); }
+    .prose h3 { font-family: var(--sans); font-size: .9em; font-weight: 600; letter-spacing: -.02em; line-height: 1.7; color: var(--green); margin: 32px 0 12px; }
+    .pullquote { position: relative; margin: 33px 0; padding: 25px 0 25px 24px; border-left: 2px solid var(--gold); font-family: var(--serif); font-size: 24px; color: var(--gold); line-height: 1.85; word-break: keep-all; }
+    .pullquote p { margin: 0; }
+    .concept-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 29px 0; }
+    .concept { background: #1c211c; border: 1px solid var(--line); border-radius: 4px; padding: 22px; }
+    .concept dt { font-family: var(--sans); color: var(--gold); font-size: 13px; font-weight: 600; margin: 0 0 9px; }
+    .concept dd { margin: 0; font-size: 16px; line-height: 1.9; }
+    .steps { list-style: none; padding: 0; margin: 23px 0 27px; display: grid; gap: 0; }
+    .steps li { display: grid; grid-template-columns: 34px 1fr; gap: 13px; padding: 19px 0; border-bottom: 1px solid var(--line); }
+    .steps li:first-child { padding-top: 3px; }
+    .step-number { color: var(--gold); font-family: Georgia, serif; font-size: 22px; line-height: 1.7; }
+    .step-body strong { display: block; font-family: var(--sans); font-size: .86em; font-weight: 600; margin-bottom: 6px; }
+    .steps p { margin: 0; }
+    .prompt-card { margin: 29px 0; background: #22281f; border: 1px solid #49513c; border-radius: 5px; }
+    .prompt-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 19px; border-bottom: 1px solid #3b4333; font-family: var(--sans); font-size: 11px; color: var(--gold); }
+    .copy-button { background: transparent; border: 1px solid #596048; border-radius: 4px; color: var(--gold); min-width: 50px; padding: 4px 10px; font-family: var(--sans); font-size: 11px; }
+    .copy-button:hover { background: #333c2c; }
+    .prompt-card blockquote { margin: 0; padding: 21px 24px; font-size: var(--size); line-height: 1.95; }
+    .side-note { font-family: var(--sans); font-size: 12px; color: var(--muted); line-height: 1.85; padding: 0 0 0 16px; border-left: 1px solid #59624f; margin: 24px 0; }
+    .dialogue { padding-left: 21px; margin: 25px 0; border-left: 1px solid #5e694e; color: var(--green); }
+    .dialogue p { margin: 0; }
+    .tool-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 30px 0; }
+    .tool { padding: 18px 12px; text-align: center; border-top: 1px solid #717b5d; background: #1c211b; }
+    .tool small { display: block; font-family: Georgia, serif; color: var(--gold); font-size: 12px; margin-bottom: 9px; }
+    .tool b { display: block; font-family: var(--sans); font-size: 14px; color: var(--bright); font-weight: 500; }
+    .tool span { display: block; font-family: var(--sans); font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .closing-line { color: var(--gold); font-size: 1.12em; margin-top: 28px !important; }
+    .extras { margin-top: 30px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 14px 18px; font-family: var(--sans); font-size: 12px; line-height: 1.95; color: var(--muted); }
+    .extras p { margin: 12px 0 0; }
+    .extras ul { padding-left: 18px; margin-bottom: 0; }
+    .extras li { margin-top: 9px; }
+    #summary { border-bottom: 0; padding-bottom: 0; }
+    .summary-lead { font-family: var(--serif); color: var(--gold); font-size: 23px; line-height: 1.9; margin: 0 0 27px; word-break: keep-all; }
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.85; margin: 0 0 27px; }
+    .summary-table th { color: var(--gold); font-weight: 500; font-size: 11px; text-align: left; background: #20261d; }
+    .summary-table td, .summary-table th { padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .summary-table td:first-child { width: 30%; color: var(--bright); }
+    .summary-table td:last-child { color: #bfc7b8; }
+    .summary-text { font-family: var(--serif); font-size: var(--size); line-height: var(--leading); word-break: keep-all; overflow-wrap: break-word; }
+    .summary-text p { margin: 0 0 16px; }
+    .summary-text strong { color: var(--bright); }
+    .end-mark { text-align: center; color: var(--gold); margin: 42px 0 0; font-size: 17px; letter-spacing: .6em; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    body.sans-reading .prose, body.sans-reading .summary-text, body.sans-reading .prompt-card blockquote { font-family: var(--sans); }
+    body.sans-reading { --leading: 1.92; }
+    @media (min-width: 1540px) { .book { max-width: 880px; padding-inline: 65px; } .cover { padding-top: 85px; } }
+    @media (max-width: 1100px) { .sidebar { width: 246px; padding-inline: 19px; } .workspace { margin-left: 246px; } .book { padding-inline: 36px; } .toolbar { padding-inline: 24px; } h1 { font-size: 39px; } }
+    @media (max-width: 860px) {
+      .workspace { margin-left: 0; }
+      .sidebar { width: min(320px,86vw); transform: translateX(-100%); transition: transform .2s ease; padding-top: 29px; }
+      body.menu-open .sidebar { transform: translateX(0); }
+      body.menu-open { overflow: hidden; }
+      body.menu-open .shade { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.62); border: 0; z-index: 8; }
+      #menu-button { display: inline-block; padding-inline: 12px; }
+      .toolbar { padding: 12px 20px; }
+      .location { margin-right: auto; }
+      .book { max-width: 810px; padding-inline: 38px; }
+      .cover { min-height: 540px; padding-top: 54px; }
+      h1 { font-size: 43px; }
+    }
+    @media (max-width: 520px) {
+      :root { --size: 18px; }
+      html { scroll-padding-top: 85px; }
+      .toolbar { padding: 11px 14px; min-height: 62px; gap: 8px; }
+      .location { max-width: 80px; font-size: 11px; }
+      .reader-controls { gap: 4px; }
+      .reader-controls button { min-width: 32px; padding-inline: 7px; }
+      .size-label { min-width: 23px; }
+      .book { padding: 0 25px 57px; }
+      .cover { min-height: auto; padding: 48px 0 35px; }
+      h1 { font-size: 34px; margin-block: 24px 19px; }
+      .cover-sub { font-size: 16px; }
+      .cover-topics { margin-block: 24px 25px; }
+      .cover-topics li { font-size: 10px; }
+      .cover-topics li+li::before { margin-inline: 9px; }
+      .edition { font-size: 10px; }
+      .part { padding: 42px 0; }
+      h2 { font-size: 25px; margin-bottom: 24px; }
+      .prose p { margin-bottom: 20px; }
+      .pullquote { font-size: 21px; padding-left: 19px; margin-block: 28px; }
+      .concept-pair { grid-template-columns: 1fr; gap: 11px; }
+      .concept { padding: 18px 20px; }
+      .concept dd { font-size: 16px; }
+      .tool-strip { gap: 8px; }
+      .tool { padding-inline: 7px; }
+      .tool b { font-size: 13px; }
+      .tool span { font-size: 10px; }
+      .prompt-header { padding-inline: 16px; }
+      .prompt-card blockquote { padding: 18px; }
+      .summary-lead { font-size: 21px; }
+      .summary-table th, .summary-table td { padding: 12px 10px; }
+      .summary-table td:first-child { width: 32%; }
+    }
+    @media (max-width: 360px) { .location { display: none; } .toolbar { justify-content: space-between; } .book { padding-inline: 21px; } h1 { font-size: 30px; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+    @media print {
+      :root { color-scheme: light; --bg: #fff; --paper: #f6f6f2; --ink: #222; --bright: #111; --muted: #555; --gold: #61562b; --green: #36513a; --line: #ccc; --size: 11pt; }
+      .sidebar, .toolbar, .shade, .skip, .start-link, .copy-button { display: none !important; }
+      .workspace { margin: 0; }
+      .book { max-width: none; padding: 0; }
+      .cover { min-height: auto; padding-top: 20px; page-break-after: always; border: 0; }
+      .part { padding: 20px 0; }
+      h1 { font-size: 30pt; }
+      h2 { font-size: 19pt; break-after: avoid; }
+      h3 { break-after: avoid; }
+      p { orphans: 3; widows: 3; }
+      .pullquote, .concept-pair, .prompt-card, .tool-strip, .summary-table { break-inside: avoid; }
+      .concept, .prompt-card, .tool, .summary-table th { background: #f6f6f2; }
+      .summary-table td:last-child { color: #333; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#prologue">본문으로 바로 가기</a>
+  <aside class="sidebar" id="sidebar" aria-label="책 목차">
+    <div class="imprint"><svg class="book-icon" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M4 3h16v20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor"/><path d="M6 3v20M10 8h6M10 12h6M2 20h18" stroke="currentColor"/></svg><span>한 편의 독서</span></div>
+    <p class="side-title">AI가 만든 코드,<br>어떻게 이해할까</p>
+    <p class="side-subtitle">일을 맡겨도, 이해는 내게 남도록</p>
+    <p class="toc-caption">CONTENTS · 목차</p>
+    <nav class="toc" aria-label="장별 바로 가기">
+      <a href="#cover" aria-current="location"><span class="num">―</span><span>표지 · 편집 안내</span></a>
+      <a href="#prologue"><span class="num">서</span><span>AI가 짠 코드를 읽어야 할까</span></a>
+      <a href="#chapter-1"><span class="num">01</span><span>코드보다 빨리 쌓이는 인지 부채</span></a>
+      <a href="#chapter-2"><span class="num">02</span><span>내 손으로 계속 만들기 위한 이해</span></a>
+      <a href="#chapter-3"><span class="num">03</span><span>첫 번째 도구, 설명서</span></a>
+      <a href="#chapter-4"><span class="num">04</span><span>두 번째 도구, 퀴즈</span></a>
+      <a href="#chapter-5"><span class="num">05</span><span>세 번째 도구, 작은 세계</span></a>
+      <a href="#chapter-6"><span class="num">06</span><span>누가, 어디까지 읽어야 할까</span></a>
+      <a href="#epilogue"><span class="num">끝</span><span>일을 맡겨도 이해는 남도록</span></a>
+      <a href="#summary"><span class="num">요</span><span>간단한 요약</span></a>
+    </nav>
+    <div class="side-footer">제공된 대본을 장별로 엮었습니다.<br>오른쪽 위에서 글자 크기와<br>본문 글꼴을 바꿀 수 있습니다.<br><a href="#cover">표지로 돌아가기 ↑</a></div>
+  </aside>
+  <button class="shade" id="shade" type="button" aria-label="목차 닫기" tabindex="-1"></button>
+  <div class="workspace">
+    <header class="toolbar" aria-label="독서 설정">
+      <div class="reader-controls"><button id="menu-button" type="button" aria-expanded="false" aria-controls="sidebar">목차</button></div>
+      <div class="location" id="location" aria-hidden="true">표지</div>
+      <div class="reader-controls" aria-label="글자 설정">
+        <button id="font-down" type="button" aria-label="글자 크기 줄이기">가−</button>
+        <span class="size-label" id="font-size" aria-hidden="true">19</span>
+        <button id="font-up" type="button" aria-label="글자 크기 키우기">가+</button>
+        <button id="font-toggle" type="button" aria-label="본문 고딕 글꼴 사용" aria-pressed="false">고딕</button>
+      </div>
+    </header>
+    <main class="book" id="book">
+      <section class="cover" id="cover" data-title="표지" aria-labelledby="book-title">
+        <div class="edition">대본으로 읽는 한 편의 이야기</div>
+        <h1 id="book-title">AI가 만든 코드,<br><em>어떻게 이해할까</em></h1>
+        <p class="cover-sub">일을 맡겨도, 이해는 내게 남도록.<br>설명서와 퀴즈, 그리고 나만을 위한 작은 세계.</p>
+        <ul class="cover-topics" aria-label="핵심 주제"><li>인지 부채</li><li>코드의 구조</li><li>이해를 남기는 세 가지 방법</li></ul>
+        <a class="start-link" href="#prologue"><span>첫 장 펼치기</span><span aria-hidden="true">↓</span></a>
+        <details class="editor-note" id="editor-note">
+          <summary>원문과 편집에 관하여</summary>
+          <p>이 독서본은 사용자가 붙여 넣은 대본을 바탕으로 만들었습니다. 본문의 ‘저’는 대본의 화자를 가리킵니다. 책 제목과 장 제목은 내용을 따라 새로 붙였습니다.</p>
+          <ul>
+            <li>시간 표시를 제거하고, 원문의 논지·설명·사례를 유지하면서 맞춤법과 띄어쓰기, 어색한 문장 연결을 다듬었습니다.</li>
+            <li>구독·좋아요와 영상 설명란 안내는 끝맺음의 ‘영상 속 안내 멘트’에 모았습니다.</li>
+            <li>화면에만 제시된 퀴즈·마이크로월드 프롬프트, 퀴즈 결과, 이름이 나오지 않는 발표자·연구자·교사의 신원은 대본에서 확인할 수 없어 보충하지 않았습니다.</li>
+            <li>‘올해’, ‘50년 전’ 등 상대적인 시점과 기술·조사에 관한 주장은 화자의 설명으로 보존했습니다. 별도의 사실 검증을 덧붙인 글은 아닙니다.</li>
+          </ul>
+          <p><strong>제공된 영상 정보</strong><br><span class="source-title">이걸 여기서 끊으면 어떡함... 트릭컬 메인스토리 2-8 불과 같이 각오한 길 상편 다시보기</span><br><a href="https://www.youtube.com/watch?v=iv60GIHpijE&amp;list=WL" target="_blank" rel="noopener noreferrer">사용자가 제공한 YouTube 링크 ↗</a></p>
+          <p>제공된 영상 제목은 트릭컬 이야기인 반면, 대본은 AI 코딩과 학습을 다룹니다. 따라서 이 파일은 영상 제목이나 링크의 실제 내용을 추정하지 않고 <strong>제공된 대본</strong>을 기준으로 구성했습니다.</p>
+        </details>
+      </section>
+
+      <section class="part" id="prologue" data-title="들어가며" aria-labelledby="prologue-title">
+        <p class="chapter-label">들어가며</p>
+        <h2 id="prologue-title">AI가 짠 코드를 읽어야 할까</h2>
+        <div class="prose">
+          <p>여러분, AI가 짜 준 코드를 우리가 읽어야 할까요? 노션에서 일하는 한 개발자가 컨퍼런스에서 대놓고 이렇게 물었어요. 손을 들어 보라고 했는데, 동의하는 쪽이 압도적이었어요. 반대하는 쪽에서도 손이 꽤 올라와 발표자가 웃음을 터뜨렸고요.</p>
+          <p>그런데 정작 이 개발자의 답은 달랐어요. 읽으라는 것도, 읽지 말라는 것도 아니었어요. <strong>읽는 방법을 바꾸라는 이야기</strong>였어요. 그 방법이 프롬프트 세 개에 담겨 있고요.</p>
+          <p>이 글에서는 그 세 가지 방법을 차례로 살펴볼 거예요. 마지막에는 누가, 언제 코드를 읽어야 하는지 제 기준도 말씀드릴게요. 먼저, 왜 읽는 방법을 바꿔야 하는지부터 이야기해 볼게요.</p>
+        </div>
+      </section>
+
+      <section class="part" id="chapter-1" data-title="1장 · 인지 부채" aria-labelledby="chapter-1-title">
+        <p class="chapter-label">제1장 · 이해가 뒤처지는 순간</p>
+        <h2 id="chapter-1-title">코드보다 빨리 쌓이는<br>인지 부채</h2>
+        <div class="prose">
+          <p>지금은 에이전트가 코드 5만 줄을 한 번에 바꿔 놓아요. 이제 한 줄씩 읽어서는 따라갈 수 없어요. 읽을 게 없어서가 아니라 너무 많아서요. 그러다 이런 순간이 와요. <strong>내 프로젝트인데 더는 손을 못 대겠는 거예요.</strong></p>
+          <p>기술 부채는 들어 보셨을 거예요. 빨리 가려고 대충 짠 코드가 나중에 빚으로 돌아오는 거예요. 인지 부채는 그 빚이 코드가 아니라 머릿속에 쌓이는 거예요. 코드는 멀쩡한데, 내가 그 코드를 모르는 거죠.</p>
+          <dl class="concept-pair" aria-label="대본에서 설명하는 두 가지 부채">
+            <div class="concept"><dt>기술 부채</dt><dd>빨리 만들려고 대충 짠 코드가 나중에 빚으로 돌아오는 것.</dd></div>
+            <div class="concept"><dt>인지 부채</dt><dd>코드는 멀쩡하지만, 내가 그 코드를 이해하지 못하는 것.</dd></div>
+          </dl>
+          <p>이 개발자만 그런 것도 아니에요. 올해 AI를 사용하는 개발자들에게 물었어요. AI를 쓰면서 나빠진 게 있느냐고요. 그중 가장 많이 나온 이야기가 바로 이것이었어요. 코드를 내가 모르게 되는 것.</p>
+        </div>
+      </section>
+
+      <section class="part" id="chapter-2" data-title="2장 · 구조를 이해하는 이유" aria-labelledby="chapter-2-title">
+        <p class="chapter-label">제2장 · 이해가 필요한 진짜 이유</p>
+        <h2 id="chapter-2-title">내 손으로 계속 만들기 위한 이해</h2>
+        <div class="prose">
+          <p>그렇다면 코드를 왜 이해해야 할까요? 보통은 이렇게 생각하잖아요. AI가 엉뚱한 짓을 했는지 봐야 하니까 읽는다고요. 그런데 그 확인은 점점 AI가 해요. 테스트를 돌려 보고, 시킨 대로 됐는지 확인하는 일은 에이전트가 갈수록 잘합니다.</p>
+          <p>우리가 맞는지 틀리는지 도장을 찍어 줄 일은 점점 줄어요. 그리고 그건 좋은 일이에요. 검증하는 일에서 풀려나는 거니까요. 이해가 필요한 진짜 이유는 따로 있어요. <strong>계속 내 손으로 만들기 위해 이해하는 거예요.</strong></p>
+          <p>구조를 아는 사람은 머릿속에서 바로 굴려 봐요. ‘이 기능을 저쪽에 붙이면 어떻게 되지?’ 하고요. 그러다 다음 아이디어가 나옵니다. 구조를 모르면 매번 물어봐야 해요. 물어보고 답을 기다리는 동안에는 아이디어가 안 나오고요. 같은 코딩 에이전트를 써도 여기서 갈려요.</p>
+          <h3>구조를 안다는 것은, 식당의 동선을 안다는 것</h3>
+          <p>그럼 구조가 뭘까요? 저는 이걸 식당으로 생각해요. 주문이 들어오면 홀에서 주방으로 어떻게 넘어가는지, 주방에서 음식이 나오기까지 몇 분이 걸리는지. 이런 흐름을 아는 게 구조예요.</p>
+          <p>이걸 아는 사장만 주방 동선을 바꿔 볼 생각을 합니다. 모르면 “더 맛있게 해 줘”라는 말밖에 못 하고요. 코드도 똑같아요.</p>
+          <p>저는 이 대목이 이 발표에서 제일 중요하다고 봐요.</p>
+          <blockquote class="pullquote"><p>확인은 점점 맡기고,<br>이해는 내가 챙긴다.</p></blockquote>
+          <p>이것 하나만 가져가셔도 핵심의 절반은 건지신 거예요. 이제부터가 실전입니다. 어떻게 하면 이해를 내 것으로 남길 수 있을까요?</p>
+        </div>
+      </section>
+
+      <section class="part" id="chapter-3" data-title="3장 · 설명서" aria-labelledby="chapter-3-title">
+        <p class="chapter-label">제3장 · 첫 번째 도구</p>
+        <h2 id="chapter-3-title">설명서 — 구조부터, 코드는 마지막에</h2>
+        <div class="prose">
+          <p>답은 교육학이에요. 사람이 어떻게 배우는지 연구하는 분야죠. 거기서 세 가지를 빌려왔어요. <strong>설명서, 퀴즈, 놀이터</strong>입니다.</p>
+          <div class="tool-strip" role="group" aria-label="이해를 돕는 세 가지 방법">
+            <div class="tool"><small>01</small><b>설명서</b><span>구조부터 읽기</span></div>
+            <div class="tool"><small>02</small><b>퀴즈</b><span>이해를 꺼내 보기</span></div>
+            <div class="tool"><small>03</small><b>놀이터</b><span>직접 조작해 보기</span></div>
+          </div>
+          <p>교육학에서 제일 먼저 빌려온 건 질문 하나예요.</p>
+          <blockquote class="dialogue"><p>“이 변경 하나를 설명하려고 팀이 일 년을 꼬박 쓴다면, 어떤 교재가 나올까?”</p></blockquote>
+          <p>그 교재를 만드는 일을 에이전트에게 시키는 게 첫 번째 방법입니다. 코드만 받고 끝내지 말고, 설명까지 붙여서 내놓으라고 하는 거예요.</p>
+          <p>‘익스플레인 디프(Explain Diff)’라는 스킬인데, 이 개발자가 매일 쓴다고 해요. 예시로 든 것은 본인이 취미로 만드는 게임이었어요. 그 게임을 가지고 설명서를 만들어 보는 거예요.</p>
+          <h3>좋은 설명서의 순서</h3>
+          <ol class="steps">
+            <li><span class="step-number" aria-hidden="true">1</span><div class="step-body"><strong>바뀐 것을 보여 주기 전에 구조부터 잡아 준다.</strong><p>이 게임을 무엇으로 만들었고, 화면은 어떤 부분으로 나뉘는지부터 설명해요.</p></div></li>
+            <li><span class="step-number" aria-hidden="true">2</span><div class="step-body"><strong>코드보다 한 줄 요약으로 먼저 감을 잡게 한다.</strong><p>저는 이 순서가 제일 마음에 들었어요. 무언가를 설명할 때 자꾸 세부 사항부터 꺼내서 망하거든요.</p></div></li>
+            <li><span class="step-number" aria-hidden="true">3</span><div class="step-body"><strong>상호작용할 수 있게 만든다.</strong><p>코드는 맨 마지막에 나와요. 실행 순서에 따라 줄글을 읽듯 볼 수 있게요.</p></div></li>
+          </ol>
+          <p>이분은 깃에 본인이 쓰는 스킬도 공개했어요. 스킬을 설치한 뒤에는 이렇게 이야기하면 돼요.</p>
+          <div class="prompt-card">
+            <div class="prompt-header"><span>대본에 포함된 설명 요청 문장</span><button type="button" class="copy-button" id="copy-prompt" aria-label="설명 요청 문장 복사">복사</button></div>
+            <blockquote id="prompt-text">방금 바뀐 거 설명해 줘. 나는 이 코드가 처음이니까 구조부터 이해시켜 주고, 코드는 맨 마지막에 보여 줘.</blockquote>
+          </div>
+          <h3>설명을 쓰다가 발견한 버그</h3>
+          <p>저도 설치해서 제 코드에 돌려 봤어요. 작은 수정 하나였는데 구조부터 이해할 수 있게 설명하고, 그림까지 그려 주더라고요.</p>
+          <p>그러다 예상하지 못한 일이 생겼어요. AI가 설명서를 쓰다가 제 코드에서 이상한 것을 하나 찾더라고요. 같은 값이 파일 두 군데에 따로 적혀 있는데, 숫자가 서로 달랐어요. 제가 몇 달 동안 모르고 지나쳤던 버그를 발견한 거예요.</p>
+          <p>설명을 쓰려면 코드를 제대로 훑어야 하니까, 훑다 보니 버그도 찾은 거죠. 그런데 여기서 이 개발자는 자기 방법에 제동을 걸어요. 저는 그 말이 제일 정직하게 들렸어요. 자기가 만든 방법을 소개하면서 이런 말을 덧붙이기는 쉽지 않잖아요.</p>
+        </div>
+      </section>
+
+      <section class="part" id="chapter-4" data-title="4장 · 퀴즈" aria-labelledby="chapter-4-title">
+        <p class="chapter-label">제4장 · 두 번째 도구</p>
+        <h2 id="chapter-4-title">퀴즈 — 읽었다는 것과 안다는 것</h2>
+        <div class="prose">
+          <blockquote class="dialogue"><p>“그런데 설명서만으로는 부족해요. 읽는 게 원래 어렵고, 사람은 게으르거든요.”</p></blockquote>
+          <p>이 개발자가 자기 경험을 하나 이야기해요. 동료에게 코드 리뷰를 부탁했대요. 자기는 설명서를 다 읽었으니까 이해했다고 생각했고요. 그런데 동료가 제일 기본적인 것을 묻는 순간 말문이 막혔어요. 사실은 몰랐던 거죠.</p>
+          <p>개발을 하지 않는 분들도 이런 적 있으실 거예요. 다 읽었는데 막상 설명해 보라고 하면 말이 나오지 않는 경우요.</p>
+          <p>기억과 학습을 연구하는 사람이 이런 말을 했어요. “책은 읽어도 안 남는다.” 그래서 이 연구자의 에세이에는 중간중간 퀴즈가 들어가 있어요. 읽기만 하고는 그냥 지나갈 수 없게요. 그걸 코드로 가져온 것이 두 번째 방법이에요.</p>
+          <p>저도 이건 가끔 해 봐요. 다 이해했다 싶을 때 AI에게 퀴즈를 내 보라고 시키거든요. 그런데 읽는 것과 답하는 것은 완전히 달라요. 읽을 때는 아는 것 같아도 답할 때는 정리가 안 되는 경우가 많아요.</p>
+          <blockquote class="pullquote"><p>읽을 때는 아는 것 같아도,<br>답할 때는 정리가 안 될 수 있어요.</p></blockquote>
+          <p>‘속도 조절기’라는 이름을 참 잘 지었죠.</p>
+          <aside class="side-note">편집 메모 · 원문에는 “그렇다면 이 규칙을 만든 본인은 잘 통과했을까요?”라는 질문이 있지만, 실제 퀴즈 결과와 화면에 나온 프롬프트는 대본에 포함되어 있지 않습니다.</aside>
+          <p>설명서도 읽고 퀴즈도 풀었는데, 그래도 감이 잡히지 않을 때가 있어요. 세 번째 방법은 그때 씁니다.</p>
+        </div>
+      </section>
+
+      <section class="part" id="chapter-5" data-title="5장 · 작은 세계" aria-labelledby="chapter-5-title">
+        <p class="chapter-label">제5장 · 세 번째 도구</p>
+        <h2 id="chapter-5-title">작은 세계 — 이해를 위한 놀이터</h2>
+        <div class="prose">
+          <p>바로 <strong>마이크로월드(Microworld)</strong>예요. 나만을 위한 작은 세계라는 뜻이에요. 이것도 교육학에서 왔어요.</p>
+          <p>한 선생님은 아이들이 직접 로봇을 코딩해서 그림을 그리게 했어요. 로봇이 목적이었던 것은 아니에요. 로봇 덕분에 아이들이 수학을 몸으로 배운 거죠.</p>
+          <h3>사이트 이사를 직접 해 보는 게임</h3>
+          <p>이 생각을 코드로 가져오면 이렇게 됩니다. 이 개발자가 자기 홈페이지를 다른 프레임워크로 옮기던 중이었어요. 클로드가 스크립트를 짜 줬는데, 읽어 봐도 감이 오지 않더래요. 파일이 여기저기 옮겨 가는데 이게 맞나 싶었고요.</p>
+          <p>그래서 다시 시켰어요. 이 이사를 내가 직접 해 보는 게임으로 만들어 달라고요.</p>
+          <p>왼쪽에는 옛날 사이트, 오른쪽에는 새 사이트가 있어요. ‘다음’ 버튼을 누를 때마다 어떤 명령이 실행되는지 나타나고, 파일이 실제로 옮겨 가는 모습이 보여요. <strong>직접 한 것이 아닌데도, 직접 한 것처럼 남는 거예요.</strong></p>
+          <p>이 개발자는 이런 것을 여러 개 만들어요. 마치 개발자가 디버깅하는 것과 비슷하죠. 그런데 정말 얻은 것은 따로 있었다고 해요. 핵심은 이것입니다.</p>
+          <blockquote class="pullquote"><p>나를 이해시키는 코드를<br>만들게 하는 거예요.</p></blockquote>
+          <p>출시할 코드를 만드는 것이 아니에요. 나를 이해시키는 코드를 만들게 하는 거죠.</p>
+          <p>저는 셋 중에 이 방법을 제일 자주 써요. 코드가 눈에 들어오지 않으면, 눈에 보이고 상호작용할 수 있는 HTML로 만들어 달라고 하거든요.</p>
+          <aside class="side-note">대본에는 이런 활용 방식만 설명되어 있습니다. 화면과 설명란에 제시되었다는 마이크로월드 프롬프트의 전문은 포함되어 있지 않습니다.</aside>
+        </div>
+      </section>
+
+      <section class="part" id="chapter-6" data-title="6장 · 누가 어디까지 읽을까" aria-labelledby="chapter-6-title">
+        <p class="chapter-label">제6장 · 읽기의 기준</p>
+        <h2 id="chapter-6-title">누가, 어디까지 읽어야 할까</h2>
+        <div class="prose">
+          <p>자, 그렇다면 누가 코드를 읽어야 할까요?</p>
+          <h3>개발이 본업이라면</h3>
+          <p>개발이 본업이시라면 구조와 핵심적인 코드는 보셔야 해요. 회의에서 “클로드에게 물어보고 답을 드리겠습니다”라는 말만 하게 된다면, 십 년이 지나도 주니어일 수 있어요.</p>
+          <h3>개발자가 아니라면</h3>
+          <p>반대로 개발자가 아니시라면 코드는 안 보셔도 괜찮아요. <strong>잘못되어도 크게 탈이 나지 않는 것이라면</strong>, 만들면서 재미를 붙이는 것이 훨씬 중요하니까요.</p>
+          <p>대신 구조는 챙기세요. 홀에서 주방으로 무엇이 어떻게 넘어가는지요. 그것만 알아도 프롬프트가 달라져요.</p>
+        </div>
+      </section>
+
+      <section class="part" id="epilogue" data-title="끝맺음 · 이해를 남기는 일" aria-labelledby="epilogue-title">
+        <p class="chapter-label">끝맺음</p>
+        <h2 id="epilogue-title">일을 맡겨도 이해는 남도록</h2>
+        <div class="prose">
+          <p>다시 발표로 돌아가 볼게요. 이분은 마지막에 50년 전 글을 하나 꺼내요. 아이 둘이 요즘의 아이패드처럼 생긴 화면을 들여다보는 그림이에요. 그런데 영상을 보고 있는 게 아니에요. 게임 코드를 고쳐 가면서 물리를 배우고 있어요.</p>
+          <p>지금은 코드가 공짜가 됐잖아요. 나만을 위한 놀이터가 사치가 아니라, 원래 하려던 일이었다는 거예요.</p>
+          <p>저는 AI가 우리를 대신하게 하기보다는, 우리를 성장시키도록 활용하고 싶어요. 일은 맡기더라도 그 이해만큼은 우리에게 남았으면 좋겠거든요. 그래서 잘 맡기는 법과 잘 남기는 법을 앞으로도 종종 찾아서 풀어 볼게요.</p>
+          <p class="closing-line">지금 개발하고 계신 것을,<br>잘 이해하면서 하고 계신가요?</p>
+        </div>
+        <details class="extras">
+          <summary>덧붙임 · 영상 속 안내 멘트</summary>
+          <p>읽는 흐름을 위해 따로 모은 원문의 진행·마무리 안내입니다. 아래 내용은 영상 화자의 안내이며, 이 HTML에 별도 스킬이나 프롬프트 전문이 첨부되었다는 뜻은 아닙니다.</p>
+          <ul>
+            <li>“오늘 영상 끝까지 보시면 이 프롬프트를 가져가실 수 있어요. 마지막에는 누가, 언제 코드를 읽어야 하는지 제 기준도 말씀드릴게요.”</li>
+            <li>“이런 이야기를 계속 듣고 싶으시면 구독과 좋아요를 한 번 눌러 주세요.”</li>
+            <li>“클로드 코드나 코덱스에서 사용해 보고 싶은 분은 영상 설명란을 참고해 주세요.”</li>
+            <li>“퀴즈를 내 달라는 프롬프트도 화면에 띄워 둘게요.”</li>
+            <li>“마이크로월드 프롬프트는 화면에 띄워 둘게요. 세 개 다 설명란에 그대로 붙여 뒀습니다. 지금 받아 적지 마시고, 끝나고 복사해 가세요.”</li>
+            <li>“댓글로 알려 주세요. 다음 영상도 유용한 내용을 가져오기 위해 고민하겠습니다. 놓치기 싫으시면 구독과 좋아요를 한 번 눌러 주세요. 봐 주셔서 감사합니다.”</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="part" id="summary" data-title="간단한 요약" aria-labelledby="summary-title">
+        <p class="chapter-label">책을 덮기 전에</p>
+        <h2 id="summary-title">간단한 요약</h2>
+        <p class="summary-lead">코드를 맡기는 것과 함께,<br>이해를 남기는 방법도 설계해야 해요.</p>
+        <div class="summary-text"><p>AI가 코드를 빠르게 만들어도 내 이해가 뒤처지면 <strong>인지 부채</strong>가 쌓여요. 구조를 이해해야 다음 기능과 변경을 스스로 구상할 수 있어요.</p></div>
+        <table class="summary-table">
+          <caption class="visually-hidden">이해를 남기는 세 가지 방법 요약</caption>
+          <thead><tr><th scope="col">방법</th><th scope="col">핵심</th></tr></thead>
+          <tbody>
+            <tr><td>설명서</td><td>전체 구조와 한 줄 요약으로 먼저 감을 잡고, 코드는 마지막에 읽어요.</td></tr>
+            <tr><td>퀴즈</td><td>읽고 이해한 것 같은 느낌을 넘어, 실제로 답할 수 있는지 확인해요.</td></tr>
+            <tr><td>작은 세계</td><td>변화를 직접 조작하고 관찰할 수 있는 놀이터로 작동 방식을 익혀요.</td></tr>
+          </tbody>
+        </table>
+        <div class="summary-text"><p>개발자는 <strong>구조와 핵심 코드</strong>를 이해해야 해요. 개발자가 아니라면, 잘못되어도 영향이 작은 작업에서는 만드는 재미를 우선하되 <strong>구조만큼은 챙기자</strong>는 것이 화자의 기준이에요.</p></div>
+        <div class="end-mark" aria-label="끝">· · ·</div>
+      </section>
+    </main>
+  </div>
+  <div class="visually-hidden" id="reader-status" aria-live="polite" role="status"></div>
+  <script>
+    (() => {
+      'use strict';
+      const root = document.documentElement;
+      const body = document.body;
+      const sidebar = document.getElementById('sidebar');
+      const menu = document.getElementById('menu-button');
+      const shade = document.getElementById('shade');
+      const status = document.getElementById('reader-status');
+      const sizeLabel = document.getElementById('font-size');
+      const down = document.getElementById('font-down');
+      const up = document.getElementById('font-up');
+      const toggle = document.getElementById('font-toggle');
+      const mobile = window.matchMedia('(max-width: 860px)');
+      const key = 'ai-code-reading-book-v1';
+      let size = window.matchMedia('(max-width: 520px)').matches ? 18 : 19;
+      let sans = false;
+      try {
+        const saved = JSON.parse(localStorage.getItem(key) || 'null');
+        if (saved && Number.isInteger(saved.size) && saved.size >= 16 && saved.size <= 26) size = saved.size;
+        if (saved && typeof saved.sans === 'boolean') sans = saved.sans;
+      } catch (_) {}
+      function settings(announce) {
+        root.style.setProperty('--size', size + 'px');
+        sizeLabel.textContent = size;
+        down.disabled = size <= 16;
+        up.disabled = size >= 26;
+        body.classList.toggle('sans-reading', sans);
+        toggle.textContent = sans ? '명조' : '고딕';
+        toggle.setAttribute('aria-pressed', String(sans));
+        toggle.setAttribute('aria-label', sans ? '본문 명조 글꼴 사용' : '본문 고딕 글꼴 사용');
+        try { localStorage.setItem(key, JSON.stringify({size, sans})); } catch (_) {}
+        if (announce) status.textContent = '글자 크기 ' + size + ', ' + (sans ? '고딕' : '명조') + ' 글꼴';
+      }
+      down.addEventListener('click', () => { size = Math.max(16, size-1); settings(true); });
+      up.addEventListener('click', () => { size = Math.min(26, size+1); settings(true); });
+      toggle.addEventListener('click', () => { sans = !sans; settings(true); });
+      settings(false);
+
+      function setMenu(open, restoreFocus) {
+        const active = mobile.matches && open;
+        body.classList.toggle('menu-open', active);
+        menu.setAttribute('aria-expanded', String(active));
+        sidebar.inert = mobile.matches && !active;
+        sidebar.setAttribute('aria-hidden', String(mobile.matches && !active));
+        if (active) sidebar.querySelector('a').focus({preventScroll: true});
+        else if (restoreFocus) menu.focus({preventScroll: true});
+      }
+      menu.addEventListener('click', () => setMenu(!body.classList.contains('menu-open'), true));
+      shade.addEventListener('click', () => setMenu(false, true));
+      sidebar.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', () => {
+        if (mobile.matches) {
+          const target = document.querySelector(link.getAttribute('href'));
+          setMenu(false, false);
+          if (target) { target.setAttribute('tabindex', '-1'); target.focus({preventScroll: true}); }
+        }
+      }));
+      document.addEventListener('keydown', event => {
+        if (!body.classList.contains('menu-open')) return;
+        if (event.key === 'Escape') { event.preventDefault(); setMenu(false, true); }
+        if (event.key === 'Tab') {
+          const links = [...sidebar.querySelectorAll('a[href]')];
+          const first = links[0];
+          const last = links[links.length-1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+      });
+      const onResize = () => setMenu(false, false);
+      if (mobile.addEventListener) mobile.addEventListener('change', onResize);
+      else mobile.addListener(onResize);
+      setMenu(false, false);
+
+      const sections = [...document.querySelectorAll('main > section[id]')];
+      const tocLinks = [...document.querySelectorAll('.toc a')];
+      const location = document.getElementById('location');
+      let queued = false;
+      function updateChapter() {
+        let current = sections[0];
+        for (const section of sections) {
+          if (section.getBoundingClientRect().top <= 165) current = section;
+          else break;
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight-4) current = sections[sections.length-1];
+        tocLinks.forEach(link => {
+          if (link.hash === '#' + current.id) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+        location.textContent = current.dataset.title;
+        queued = false;
+      }
+      window.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(updateChapter); } }, {passive: true});
+      window.addEventListener('resize', updateChapter);
+      updateChapter();
+
+      const copy = document.getElementById('copy-prompt');
+      function fallbackCopy(text) {
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.cssText = 'position:fixed;left:-9999px;top:0';
+        body.appendChild(area);
+        area.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } finally { area.remove(); copy.focus({preventScroll: true}); }
+        return ok;
+      }
+      copy.addEventListener('click', async () => {
+        const text = document.getElementById('prompt-text').textContent.trim();
+        let ok = false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); ok = true; }
+        } catch (_) {}
+        if (!ok) { try { ok = fallbackCopy(text); } catch (_) {} }
+        if (ok) { copy.textContent = '복사됨'; status.textContent = '설명 요청 문장을 복사했습니다.'; }
+        else {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(document.getElementById('prompt-text'));
+          selection.removeAllRanges(); selection.addRange(range);
+          copy.textContent = '직접 복사';
+          status.textContent = '선택된 문장을 복사해 주세요.';
+        }
+        setTimeout(() => { copy.textContent = '복사'; }, 2200);
+      });
+    })();
+  </script>
+</body>
+</html>

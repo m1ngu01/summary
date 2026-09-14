@@ -98,7 +98,8 @@ def main():
                 if pending and now - changed_at >= 15 and now - attempted_at >= 60:
                     attempted_at = now
                     publish()
-                    previous = snapshot()
+                    # Keep the pre-publish snapshot so saves during Git/network work
+                    # are noticed on the next poll rather than silently absorbed.
                     pending = False
             except Exception:
                 logging.exception('Publish deferred; retrying after 60 seconds.')

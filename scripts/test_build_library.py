@@ -24,7 +24,7 @@ class LibraryTests(unittest.TestCase):
             self.assertEqual(build(root), 0)
             self.assertNotIn('A &amp; B', (root / 'index.html').read_text(encoding='utf-8'))
 
-    def test_publish_keeps_relative_assets_and_original_texts(self):
+    def test_publish_contains_only_html_and_indexes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / 'repo'
             (root / 'html').mkdir(parents=True)
@@ -36,11 +36,31 @@ class LibraryTests(unittest.TestCase):
             (root / 'private-build-file').write_text('not published')
             output = Path(tmp) / 'published'
             self.assertEqual(build(root, output), 1)
-            self.assertEqual((output / raw.relative_to(root)).read_bytes(), raw.read_bytes())
-            self.assertTrue((output / 'html/cover.svg').exists())
+            self.assertFalse((output / raw.relative_to(root)).exists())
+            self.assertFalse((output / 'html/cover.svg').exists())
+            self.assertTrue((output / 'html/book.htm').exists())
             self.assertTrue((output / 'index.html').exists())
             self.assertTrue((output / '.nojekyll').exists())
             self.assertFalse((output / 'private-build-file').exists())
+
+    def test_empty_repository_and_existing_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.assertEqual(build(root), 0)
+            existing = root / 'output'
+            existing.mkdir()
+            (root / 'index.html').write_text('unchanged')
+            with self.assertRaises(FileExistsError):
+                build(root, existing)
+            self.assertEqual((root / 'index.html').read_text(), 'unchanged')
+
+    def test_title_line_break(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / 'html').mkdir()
+            (root / 'html/book.html').write_text('<h1>First<br>Second</h1>')
+            build(root)
+            self.assertIn('First Second', (root / 'index.html').read_text(encoding='utf-8'))
 
 
 if __name__ == '__main__':

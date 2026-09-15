@@ -17,6 +17,8 @@ class Metadata(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if self.capture and tag == 'br':
+            self.values[self.capture[1]] += ' '
         if self.capture is None:
             key = tag if tag in ('title', 'h1') else None
             if tag == 'p' and 'subtitle' in attrs.get('class', '').split():
@@ -110,6 +112,9 @@ def render(books, prefix):
 
 
 def build(root=ROOT, output=None):
+    if output and output.exists():
+        raise FileExistsError(f'Output directory already exists: {output}')
+    (root / 'html').mkdir(parents=True, exist_ok=True)
     books = collect(root)
     (root / 'index.html').write_text(render(books, 'html/'), encoding='utf-8')
     (root / 'html/index.html').write_text(render(books, ''), encoding='utf-8')
@@ -117,10 +122,12 @@ def build(root=ROOT, output=None):
         # A fresh publish directory avoids stale deleted books and excludes repo internals.
         output.mkdir(parents=True, exist_ok=False)
         shutil.copy2(root / 'index.html', output / 'index.html')
-        for name in ('html', '원본 유튜브 요약 텍스트'):
-            source = root / name
-            if source.exists():
-                shutil.copytree(source, output / name)
+        # Publish only HTML; transcripts and application code stay out of Pages.
+        for source in (root / 'html').rglob('*'):
+            if source.is_file() and source.suffix.lower() in ('.html', '.htm'):
+                target = output / source.relative_to(root)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
         (output / '.nojekyll').touch()
     return len(books)
 

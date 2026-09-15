@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>{{TITLE}}</title>
+<style>
+:root{color-scheme:dark;--paper:#181816;--ink:#e9e0cc;--gold:#bda476;--size:20px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Serif KR","Batang",serif;font-size:var(--size);line-height:1.95;overflow-wrap:anywhere}
+body.sans{font-family:system-ui,"Malgun Gothic",sans-serif}main{width:min(100% - 44px,760px);margin:auto}a{color:var(--gold);text-underline-offset:5px}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+header{padding:90px 0 60px;border-bottom:1px solid #494335}header .eyebrow{color:var(--gold);font:12px system-ui;letter-spacing:.2em}h1{font-size:clamp(32px,6vw,52px);line-height:1.5;letter-spacing:-.04em;word-break:keep-all}h2{font-size:1.35em;font-weight:500;color:var(--gold);line-height:1.6}p{margin:1.2em 0;white-space:pre-wrap}nav{padding:35px 0;border-bottom:1px solid #494335}nav ol{padding-left:24px}nav li{padding:5px 0}section{padding:42px 0;scroll-margin-top:32px}section+section{border-top:1px solid #363228}.note,footer{font:14px/1.8 system-ui;color:#b4ae9f}footer{padding:30px 0 65px;border-top:1px solid #494335}.settings{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:30px;font:14px system-ui}button{padding:10px 14px;background:#24231f;border:1px solid #706248;border-radius:4px;color:var(--ink);cursor:pointer}input{accent-color:var(--gold);max-width:150px}label{display:flex;gap:10px;align-items:center}
+@media(max-width:600px){:root{--size:18px}header{padding-top:50px}section{padding:28px 0}body{line-height:1.85}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{body{background:white;color:black}.settings{display:none}a,h2{color:inherit}}
+</style>
+</head>
+<body><main>
+<header><p class="eyebrow">READING LIBRARY</p><h1>{{TITLE}}</h1>
+<a href="{{URL}}" rel="noreferrer">원본 영상 보기</a>
+<div class="settings" role="group" aria-label="읽기 설정">
+<label>글자 크기 <input id="size" type="range" min="16" max="30" step="1" value="20"><output id="size-value" for="size">20px</output></label>
+<button id="font" type="button" aria-pressed="false">고딕으로 읽기</button></div>
+<p class="note">편집 안내: 원문 순서와 의미를 보존하도록 문장과 문단을 다듬었습니다. 소설화와 삽화는 추가하지 않았습니다. 자동 추출·교정에는 오류가 있을 수 있습니다.</p></header>
+<nav aria-label="목차"><h2>목차</h2><ol>{{TOC}}<li><a href="#summary">간단한 요약</a></li></ol></nav>
+{{BODY}}
+<section id="summary"><h2>간단한 요약</h2>{{SUMMARY}}</section>
+<footer>본문과 읽기 기능은 인터넷 연결 없이 사용할 수 있습니다. 원본 영상 링크는 인터넷 연결이 필요합니다.</footer>
+</main><script>
+const size=document.getElementById('size'),out=document.getElementById('size-value'),font=document.getElementById('font');
+function applySize(value){const n=Number(value);if(Number.isFinite(n)&&n>=16&&n<=30){size.value=n;out.textContent=n+'px';document.documentElement.style.setProperty('--size',n+'px')}}
+function applyFont(sans){document.body.classList.toggle('sans',sans);font.setAttribute('aria-pressed',String(sans));font.textContent=sans?'명조로 읽기':'고딕으로 읽기'}
+try{const saved=localStorage.getItem('reading-size');applySize(saved===null?(matchMedia('(max-width:600px)').matches?18:20):saved);applyFont(localStorage.getItem('reading-font')==='sans')}catch{applySize(matchMedia('(max-width:600px)').matches?18:20)}
+size.addEventListener('input',()=>{applySize(size.value);try{localStorage.setItem('reading-size',size.value)}catch{}});
+font.addEventListener('click',()=>{applyFont(!document.body.classList.contains('sans'));try{localStorage.setItem('reading-font',document.body.classList.contains('sans')?'sans':'serif')}catch{}});
+</script></body></html>
